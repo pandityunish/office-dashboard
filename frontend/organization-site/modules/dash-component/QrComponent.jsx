@@ -37,10 +37,8 @@ export default function QrComponent() {
           <p className="font-normal text-base font-inter mt-2 text-center">{user?.address===null?"":user?.address}</p>
           <button className='bg-white gap-3  border flex items-center justify-center border-primaryblue rounded-xl mt-4 w-[182px] h-[48px] text-primaryblue'
           onClick={()=>{
-            // saveAs(`${baseurl}${user?.qr}`)
-            saveAs(`${baseurl}/media/qr/2024/9818998686-qrcode_leUIJ9i.png`)
-            // saveAs("https://admin.epass.com.np/visitor/report/org?export_csv")
-            downloadImage(`${baseurl}/media/qr/2024/9818998686-qrcode_leUIJ9i.png`)
+            saveAs(`${baseurl}${user?.qr}`)
+            downloadImage(`${baseurl}${user?.qr}`)
           }}
           >
             Download QR <GoDownload className="text-2xl"/>
