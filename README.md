@@ -1,93 +1,123 @@
-# E-PASS
+# EPASS MANAGEMENT SYSTEM
 
+Epass QR Based Entry Management System
 
+## Table of Contents
 
-## Getting started
+- [Overview](#overview)
+  - [What is Epass?](#what-is-epass)
+  - [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+  - [Running the Project](#running-the-project)
+  - [Running a Specific Container](#running-a-specific-container)
+  - [Accessing the Applications](#accessing-the-applications)
+- [API Documentation](#api-documentation)
+- [License](#license)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Overview
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Epass is a QR-based entry management system that allows users to easily and securely enter and exit a premises. It is a cloud-based system that can be accessed from anywhere with an internet connection.
 
-## Add your files
+### What is Epass?
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Epass is a digital pass that is issued to users. The pass contains a QR code that is scanned by a reader at the entrance of the premises. The reader verifies the authenticity of the pass and allows the user to enter.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/epassteam/e-pass.git
-git branch -M main
-git push -uf origin main
-```
+### Features
 
-## Integrate with your tools
+Epass offers a number of features, including:
 
-- [ ] [Set up project integrations](https://gitlab.com/epassteam/e-pass/-/settings/integrations)
+- Secure entry and exit: Epass uses a secure QR code system to verify the authenticity of each pass. This helps to prevent unauthorized access to the premises.
+- Easy to use: Epass is easy to use for both users and administrators. Users can simply scan their pass at the entrance to enter the premises. Administrators can manage users and passes from a web dashboard.
+- Scalable: Epass is scalable and can be used to manage large numbers of users and passes.
 
-## Collaborate with your team
+## Getting Started
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Prerequisites
 
-## Test and Deploy
+To get started with Epass, you will need the following prerequisites:
 
-Use the built-in continuous integration in GitLab.
+- Docker
+- Docker Compose
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Installation
 
-***
+1. Clone this repository to your local machine:
 
-# Editing this README
+   SSH: `git clone git@gitlab.com:societyfintech/epass-codebase.git`
+   HTTPS: `git clone https://gitlab.com:societyfintech/epass-codebase.git`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+   ```bash
+   cd epass-codebase
+   ```
 
-## Suggestions for a good README
+2. Build the Docker containers using the following command:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+   ```bash
+   docker-compose -f compose-dev.yml build
+   ```
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Running the Project
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+To run the entire project, including all containers and services, use the following command:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+docker-compose -f compose-dev.yml up
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Running a Specific Container
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+If you want to run only a specific container and access its shell, use the following command as an example:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```bash
+docker-compose -f compose-dev.yml exec backend-api-service bash
+```
+
+Here's what each part of the command means:
+
+- `docker-compose`: This command is used to manage multi-container Docker applications using a `docker-compose.yml` file.
+- `-f compose-dev.yml`: This specifies the Docker Compose file you want to use (in this case, `compose-dev.yml`).
+- `exec`: This command is used to execute a command in a running container.
+- `backend-api-service`: This is the name of the container you want to run the command in. Replace it with the actual container name.
+- `bash`: This is the command you want to execute inside the container. In this example, we're running a Bash shell inside the container.
+
+Remember to replace `backend-api-service` with the name of the container you want to run.
+
+### Accessing the Applications
+
+Once the project is running, you can access the applications using the following URLs:
+
+- Frontend Main Site: [http://localhost:3000](http://localhost:3000)
+- Frontend Admin Site: [http://localhost:3001](http://localhost:3001)
+- Frontend Organization Site: [http://localhost:3002](http://localhost:3002)
+- Frontend Visitor Site: [http://localhost:3003](http://localhost:3003)
+
+Access the backend services using their respective ports:
+
+- Backend Visitor Service: [http://localhost:8001](http://localhost:8001)
+- Backend Organization Service: [http://localhost:8002](http://localhost:8002)
+- Backend User Service: [http://localhost:8003](http://localhost:8003)
+- Backend Admin Service: [http://localhost:8004](http://localhost:8004)
+
+## API Documentation
+
+You can access the API documentation for all backend endpoints using the following routes:
+
+- JSON format: [http://localhost/api-docs/schema-json](http://localhost/api-docs/schema-json)
+- Swagger UI: [http://localhost/api-docs/schema-swagger-ui](http://localhost/api-docs/schema-swagger-ui)
+- ReDoc: [http://localhost/redoc/schema-redoc](http://localhost/redoc/schema-redoc)
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Epass Private License
+---
+
+For downloading Docker and Docker Compose:
+
+- Download Docker: [Docker](https://www.docker.com/get-started)
+- Download Docker Compose: [Docker Compose](https://docs.docker.com/compose/install/)
+```

@@ -1,0 +1,72 @@
+version: '3.9'
+
+services:
+  frontend-main-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/dev/main-site/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/main-site:/app/frontend/main-site
+
+  frontend-admin-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/dev/admin-site/Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend/admin-site:/app/frontend/admin-site
+
+  frontend-organization-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/dev/organization-site/Dockerfile
+    ports:
+      - "3002:3000"
+    env_file:
+      - ./envs/dev/frontend.env
+    volumes:
+      - ./frontend/organization-site:/app/frontend/organization-site/
+
+  frontend-visitor-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/dev/visitor-site/Dockerfile
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./frontend/visitor-site:/app/frontend/visitor-site
+
+  backend-api-service:
+    build:
+      context: .
+      dockerfile: ./docker/backend/dev/api-service/Dockerfile
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./envs/dev/backend.env
+    volumes:
+      - ./backend/api_service:/app/backend/api_service
+
+
+
+
+  # backup_service:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/backup/Dockerfile
+  #   volumes:
+  #     - backups:/backups
+  #   environment:
+  #     DATABASE_HOST: database
+  #     DATABASE_USER: your_db_user
+  #     DATABASE_NAME: your_db_name
+  #     REMOTE_SERVER: user@remote_server:/path/to/backups
+  #     MAX_BACKUPS: 10
+
+
+volumes:
+  backups:
+  static:

@@ -1,0 +1,127 @@
+<!-- card_template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epass Card Design</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        .card-container {
+            background-color: #ffffff;
+            width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            color: #000;
+            padding: 50px;
+            font-size: 24px;
+            background-image: url('{{ background_image_url }}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .qr-container {
+            text-align: center;
+            border: 7px solid #1075be; /* Pure blue color */
+            border-radius: 10px;
+        }
+
+        .qr-code-text {
+            font-weight: bold;
+            font-size: 16px;
+            color: black;
+        }
+
+        .qr-code {
+            height: 250px;
+            background-image: url('{{ background_qr_url }}');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-top: -25px;
+        }
+        
+        .terminal-no {
+            text-align: center;
+            margin-top: -35px;
+            color: black;
+        }
+
+        .terminal-text {
+            color: black;
+        }
+
+        .terminal-number {
+            color: black;
+            font-weight: bold;
+            margin-top:-12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .footer p {
+            margin: 0;
+            color: black;
+        }
+
+        .footer p.bold-text {
+            font-weight: bold;
+        }
+
+        .org-name {
+            font-size: 25px;
+        }
+
+        .org-place {
+            font-size: 17px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <header class="header">
+            <h1></h1>
+        </header>
+        <main class="content">
+            <div class="qr-container">
+                <p class="qr-code-text">Scan the QR</p>
+                <div class="qr-code"></div>
+                <div class="terminal-no">
+                    <p class="terminal-text">Terminal No.</p>
+                    <p class="terminal-number">{{ terminal_number }}</p>
+                </div>
+            </div>
+            <footer class="footer">
+                <p class="bold-text org-name">{{ organization_name }}</p>
+                <p class="org-place">{{ organization_location }}</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

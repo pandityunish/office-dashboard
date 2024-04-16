@@ -1,0 +1,85 @@
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://103.90.86.214:3000;
+    }
+}
+
+server {
+    listen 80;
+    server_name org.epass.com.np;
+
+    location / {
+        proxy_pass http://103.90.86.214:3002;
+    }
+}
+
+server {
+    listen 80;
+    server_name api.epass.com.np;
+
+    location / {
+        proxy_pass http://103.90.86.214:8002;
+        proxy_buffer_size          128k;
+        proxy_buffers              4 256k;
+        proxy_busy_buffers_size    256k;
+    }
+
+    location /static/ {
+        autoindex on;
+        alias /app/backend/api_service/staticfiles/;
+    }
+
+    location /media/ {
+        autoindex on;
+        alias /app/backend/api_service/media/;
+    }
+}
+
+server {
+    listen 80;
+    server_name admin.epass.com.np;
+
+     location / {
+        proxy_pass http://103.90.86.214:8002/admin/;
+        proxy_buffer_size          128k;
+        proxy_buffers              4 256k;
+        proxy_busy_buffers_size    256k;
+    }
+
+}
+
+# server {
+#     listen 80;
+#     server_name user.epass.com.np;
+
+#     location /api {
+#         proxy_pass http://103.90.86.214:8003;
+#     }
+
+#     location /static/ {
+#         autoindex on;
+#         alias /app/backend/api_service/staticfiles/;
+#     }
+
+#     location /media/ {
+#         autoindex on;
+#         alias /backend/api_service/media/;
+#     }
+# }
+
+# server {
+#     listen 80;
+#     server_name visitor.epass.com.np;
+
+#     location /api {
+#         proxy_pass http://103.90.86.214:8001;
+#     }
+
+#     location /static/ {
+#         autoindex on;
+#         alias /backend/api_service/static/;
+#     }
+# }

@@ -1,0 +1,95 @@
+version: '3.9'
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./backend/api_service/static:/app/backend/api_service/staticfiles
+      - ./backend/api_service/media:/app/backend/api_service/media
+
+  frontend-main-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/prod/main-site/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/main-site:/app/frontend/main-site
+
+  frontend-organization-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/prod/organization-site/Dockerfile
+    ports:
+      - "3002:3000"
+    env_file:
+      - ./envs/prod/frontend.env
+    volumes:
+      - ./frontend/organization-site:/app/frontend/organization-site
+
+  backend-api-service:
+    build:
+      context: .
+      dockerfile: ./docker/backend/prod/api-service/Dockerfile
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./envs/dev/backend.env
+    volumes:
+      - ./backend/api_service:/app/backend/api_service
+
+  frontend-admin-site:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/prod/admin-site/Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend/admin-site:/app/frontend/admin-site
+
+  # frontend-visitor-site:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/frontend/prod/visitor-site/Dockerfile
+  #   ports:
+  #     - "3003:3000"
+  #   volumes:
+  #     - ./frontend/visitor-site:/app/frontend/visitor-site
+
+  # backend-visitor-service:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/backend/prod/visitor-service/Dockerfile
+  #   ports:
+  #     - "8001:8000"
+  #   volumes:
+  #     - ./backend/visitor_service:/app/backend/visitor_service
+
+
+  # backend-user-service:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/backend/prod/user-service/Dockerfile
+  #   ports:
+  #     - "8003:8000"
+  #   volumes:
+  #     - ./backend/user_service:/app/backend/user_service
+
+  # backend-admin-service:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/backend/prod/admin-service/Dockerfile
+  #   ports:
+  #     - "8004:8000"
+  #   volumes:
+  #     - ./backend/admin_service:/app/backend/admin_service
+
+volumes:
+  backups:
+  static:
+  media:

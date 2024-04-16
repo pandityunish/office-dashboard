@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .details {
+            margin-top: 20px;
+        }
+
+        .details p {
+            margin: 8px 0;
+        }
+
+        .details span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ visitor.full_name}}</h1>
+        <div class="details">
+            <p><span>Full Name:</span> {{ visitor.full_name}}</p>
+            <p><span>Email:</span>{{visitor.email}}</p>
+            <p><span>Mobile Number:</span>{{visitor.mobile_number}}</p>
+            <p><span>Address:</span> {{visitor.address}}</p>
+        </div>
+    </div>
+</body>
+</html>

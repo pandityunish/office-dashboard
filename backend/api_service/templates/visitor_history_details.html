@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #333;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="title">{{ visitor_history.full_name }}'s Visit History at {{ visitor_history.organization_name }}</h2>
+
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>Details</th>
+        </tr>
+        <tr>
+            <td>Visit ID</td>
+            <td>{{ visitor_history.id }}</td>
+        </tr>
+        <tr>
+            <td>Organization Name</td>
+            <td>{{ visitor_history.organization_name }}</td>
+        </tr>
+        <tr>
+            <td>Visitor Full Name</td>
+            <td>{{ visitor_history.full_name }}</td>
+        </tr>
+        <tr>
+            <td>Visited From</td>
+            {% if visitor_history.visiting_from %}
+            <td>{{ visitor_history.visiting_from }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Departed at</td>
+            {% if visitor_history.departed_at %}
+            <td>{{ visitor_history.departed_at|date:"Y-m-d H:i" }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Accepted (Yes/No)</td>
+            {% if visitor_history.is_approved %}
+            <td>Yes</td>
+            {% else %}
+            <td>No</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Visit Type (Manual/Scan)</td>
+            <td>{{ visitor_history.visit_type }}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            {% if visitor_history.email %}
+            <td>{{ visitor_history.email }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Mobile Number</td>
+            {% if visitor_history.mobile_number %}
+            <td>{{ visitor_history.mobile_number }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>Purpose</td>
+            {% if visitor_history.purpose %}
+            <td>{{ visitor_history.purpose }}</td>
+            {% else %}
+            <td>-</td>
+            {% endif %}
+        </tr>
+        <!-- Add more rows for other fields as needed -->
+    </table>
+</body>
+</html>

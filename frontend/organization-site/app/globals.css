@@ -1,0 +1,25 @@
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  .Toastify__toast--success {
+    
+    border-radius: 10px !important;
+    background: #E1FFF6 !important;
+  color: #0FBC88 !important;
+  }
+  .Toastify__toast--error {
+    border-radius: 10px !important;
+    background: #FFE4E4 !important;
+  color: #FF3A3A !important;
+}
+  .Toastify__close-button {
+   margin-top: 15px !important;
+
+  }
+  
+  /* Change the color of the close button */
+  .Toastify__close-button svg {
+    fill: #898989 !important; /* Change the color to your desired color */
+  }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

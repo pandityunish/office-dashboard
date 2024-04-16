@@ -1,0 +1,8 @@
+db.sqlite3
+frontend/organization-site/.next
+backend/api_service/db.sqlite3
+
+env
+
+/backend/env
+__pycache__/

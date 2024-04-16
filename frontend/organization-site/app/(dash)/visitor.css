@@ -1,0 +1,35 @@
+#container1::-webkit-scrollbar {
+    width: 5px;
+    background-color: grey;
+}
+
+#container1::-webkit-scrollbar-track {
+    background: #A3A3A3;
+    border-radius: 20px;
+    cursor: pointer;
+}
+#container1::-webkit-scrollbar {
+    
+    height: 5px;
+    background-color: grey;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+#container1::-webkit-scrollbar-thumb {
+    background: #0F75BC;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+
+#container1::-webkit-scrollbar-thumb:active {
+    background: #0F75BC;
+    cursor: pointer;
+}
+
+
+#container1::-webkit-scrollbar-thumb:active {
+cursor: pointer;
+    background: #0F75BC; /* Change the color when actively scrolled */
+}

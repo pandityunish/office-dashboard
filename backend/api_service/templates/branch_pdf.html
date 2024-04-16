@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .details {
+            margin-top: 20px;
+        }
+
+        .details p {
+            margin: 8px 0;
+        }
+
+        .details span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{branch.organization.full_name}} Branch        </h1>
+        <div class="details">
+            <p><span>Branch Name:</span> {{branch.name}}</p>
+            <p><span>Branch Number:</span> {{branch.branch_no}}</p>
+            <p><span>Country:</span> {{branch.country}}</p>
+            <p><span>District:</span> {{branch.district}}</p>
+
+            <p><span>State/Province:</span> {{branch.district}}</p>
+            <p><span> Municipality / Rural Municipality:</span> {{branch.municipality}}</p>
+            <p><span>Created At:</span> {{branch.created_at.date}}</p>
+
+            <p><span>  Contact Person:</span> {{branch.contact_person}}</p>
+            <p><span>Branch Contact No:</span> {{branch.mobile_no}}</p>
+            <p><span>Email Address:</span> {{branch.email}}</p>
+            <p><span>Address:</span> {{branch.country}}, {{branch.state}} {{branch.district}}</p>
+            <p><span>Ward:</span> {{branch.ward_no}}</p>
+        </div>
+    </div>
+</body>
+</html>

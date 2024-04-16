@@ -1,0 +1,56 @@
+
+/* ::-webkit-scrollbar {
+    width: 5px;
+    background-color: #E1E1E1;
+}
+
+::-webkit-scrollbar-track {
+    background: #25AAE1;
+    border-radius: 20px;
+} */
+
+/* ::-webkit-scrollbar-thumb {
+    background: #25AAE1;
+    border-radius: 10px;
+    width: 100px;
+    height: 40px; 
+} */
+
+
+
+
+/* ::-webkit-scrollbar-thumb:active {
+    background: blue; 
+} */
+#container::-webkit-scrollbar {
+    width: 5px;
+    background-color: grey;
+}
+
+#container::-webkit-scrollbar-track {
+    background: #25AAE1;
+    border-radius: 20px;
+}
+
+#container::-webkit-scrollbar-thumb {
+    background: #25AAE1;
+    border-radius: 10px;
+    width: 100px;
+    height: 40px; /* Adjust the height of the scrollbar thumb as needed */
+}
+
+#container::-webkit-scrollbar-thumb:hover {
+    background: rgb(199, 38, 38);
+}
+
+#container::-webkit-scrollbar-thumb:active {
+    background: blue;
+}
+
+
+#container::-webkit-scrollbar-thumb:active {
+    background: blue; /* Change the color when actively scrolled */
+}
+
+
+
