@@ -1,12 +1,16 @@
-import base64
-import os
 from datetime import timedelta
+from xhtml2pdf import pisa
 
 from django.conf import settings
 from django.contrib.auth.models import Permission
-from django.core.files import File
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse
 from django.template.loader import get_template
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
+
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
@@ -14,33 +18,40 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
-from xhtml2pdf import pisa
+from rest_framework.response import Response
 
-from . import usecases, serializers
-from .models import CustomUser
 from .serializers import (
     ChangePasswordSerializer,
     CustomUserSerializerLoginDetails,
     ForgotPasswordSerializer,
     ResendOTPSerializer,
     ResetPasswordSerializer,
-    VerifyOTPSerializer, CustomUserUpdateSerializer, CustomUserImageUpdateSerializer, CustomUserSerializer,
+    VerifyOTPSerializer,
+    CustomUserUpdateSerializer,
+    CustomUserImageUpdateSerializer,
+    CustomUserSerializer,
+    CreateUserPermissionSerializer,
 )
+
+from . import usecases, serializers
+from .models import CustomUser, Subscription
+from api_service.settings import production
 from .utils import generate_otp, send_otp_to_user, generate_sms_text, send_email
 
+from organization.models import OrganizationKYC
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def get_all_permissions(request):
     all_permissions = Permission.objects.all()
-    permission_list = [{'id': p.id, 'codename': p.codename, 'name': p.name} for p in all_permissions]
-    return Response({'permissions': permission_list}, status=status.HTTP_200_OK)
+    permission_list = [
+        {"id": p.id, "codename": p.codename, "name": p.name} for p in all_permissions
+    ]
+    return Response({"permissions": permission_list}, status=status.HTTP_200_OK)
 
 
 class MobileNumberTokenObtainPairView(TokenObtainPairView):
     username_field = "mobile_number"
-
-
-from django.utils.timezone import now
 
 
 class RegisterUserView(generics.CreateAPIView):
@@ -56,7 +67,9 @@ class RegisterUserView(generics.CreateAPIView):
         user.otp = otp
         user.otp_created_at = now()
         user.save()
-        return Response({"message": "OTP sent for verification"}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "OTP sent for verification"}, status=status.HTTP_201_CREATED
+        )
 
 
 class VerifyOTPView(generics.CreateAPIView):
@@ -78,11 +91,9 @@ class VerifyOTPView(generics.CreateAPIView):
         user.is_active = True
         user.admin_of_organization = True
         user.save()
-        return Response({"message": "OTP verified successfully"}, status=status.HTTP_200_OK)
-
-
-from user.models import Subscription
-from django.utils import timezone
+        return Response(
+            {"message": "OTP verified successfully"}, status=status.HTTP_200_OK
+        )
 
 
 class LoginView(generics.CreateAPIView):
@@ -91,8 +102,8 @@ class LoginView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         return usecases.LoginUseCase(
-            serializer=serializer,
-            request=self.request).execute()
+            serializer=serializer, request=self.request
+        ).execute()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -102,34 +113,37 @@ class LoginView(generics.CreateAPIView):
         return Response(response, status=status.HTTP_200_OK, headers=headers)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def SubsOfOrg(request):
     try:
-        response_data = Subscription.objects.filter(user=request.user).values("subscription_id", "start_subscription",
-                                                                              "end_subscription")
+        response_data = Subscription.objects.filter(user=request.user).values(
+            "subscription_id", "start_subscription", "end_subscription"
+        )
         return Response(response_data, status=status.HTTP_200_OK)
     except Subscription.DoesNotExist:
         raise ValidationError("No Subscription")
 
 
-from user.serializers import CreateUserPermissionSerializer
-
-
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def AddStaffForORG(request):
     # Check if the user making the request is an admin of the organization
     if not request.user.admin_of_organization:
-        return Response({'error': 'Only admin users can create accounts.'}, status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "Only admin users can create accounts."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     # Check if the request includes the necessary data
-    if 'permissions' not in request.data:
-        return Response({'error': 'Permissions field is required in the request data.'},
-                        status=status.HTTP_400_BAD_REQUEST)
+    if "permissions" not in request.data:
+        return Response(
+            {"error": "Permissions field is required in the request data."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     # Extract permissions from the request data
-    permission_codenames = request.data['permissions']
+    permission_codenames = request.data["permissions"]
 
     # Validate and create the user using the serializer
     serializer = CreateUserPermissionSerializer(data=request.data)
@@ -140,7 +154,10 @@ def AddStaffForORG(request):
         permissions = Permission.objects.filter(codename__in=permission_codenames)
         user.user_permissions.set(permissions)
 
-        return Response({'message': 'User registered successfully', 'user_id': user.id}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "User registered successfully", "user_id": user.id},
+            status=status.HTTP_201_CREATED,
+        )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -148,7 +165,7 @@ def AddStaffForORG(request):
 class ForgotPasswordView(generics.CreateAPIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = ''
+    queryset = ""
 
     def perform_create(self, serializer):
         return usecases.ForgetPasswordUseCase(serializer=serializer).execute()
@@ -434,20 +451,9 @@ class ResendOTPView(generics.CreateAPIView):
 #         return Response({"message": "qr", "path": path}, status=200)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-
 class GenerateTestQR(APIView):
     def get(self, request):
         pass
-
-
-from django.shortcuts import render
-from api_service.settings import production
-from organization.models import OrganizationKYC
-
-from django.shortcuts import get_object_or_404
 
 
 def qr_code_view(request, pk):
@@ -460,19 +466,29 @@ def qr_code_view(request, pk):
         org_info = get_object_or_404(CustomUser, id=pk)
         org_details = get_object_or_404(OrganizationKYC, organization=pk)
         context = {
-            'background_image_url': f"{url}{logo_path}" if logo_path else "",
-            'terminal_number': f"{org_info.id}" if org_info.id is not None else "",
-            'background_qr_url': f"{url}{org_info.qr}" if org_info.qr else "",
-            'organization_name': org_info.organization_name if org_info.organization_name else "",
-            'organization_location': f"{org_details.state},{org_details.district}" if org_details.state and org_details.district else "",
+            "background_image_url": f"{url}{logo_path}" if logo_path else "",
+            "terminal_number": f"{org_info.id}" if org_info.id is not None else "",
+            "background_qr_url": f"{url}{org_info.qr}" if org_info.qr else "",
+            "organization_name": (
+                org_info.organization_name if org_info.organization_name else ""
+            ),
+            "organization_location": (
+                f"{org_details.state},{org_details.district}"
+                if org_details.state and org_details.district
+                else ""
+            ),
         }
-        return render(request, 'qr_code.html', context)
+        return render(request, "qr_code.html", context)
     except CustomUser.DoesNotExist:
-        return render(request, 'error.html', {'error_message': 'User not found'})
+        return render(request, "error.html", {"error_message": "User not found"})
     except OrganizationKYC.DoesNotExist:
-        return render(request, 'error.html', {'error_message': 'Organization details not found'})
+        return render(
+            request, "error.html", {"error_message": "Organization details not found"}
+        )
     except Exception as e:
-        return render(request, 'error.html', {'error_message': 'An unexpected error occurred'})
+        return render(
+            request, "error.html", {"error_message": "An unexpected error occurred"}
+        )
 
 
 class UserUpdateView(generics.UpdateAPIView):
@@ -480,28 +496,25 @@ class UserUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        user_id = self.kwargs.get('user_id')
+        user_id = self.kwargs.get("user_id")
         user = CustomUser.objects.filter(pk=user_id).first()
         if not user:
-            raise ValidationError({
-                'error': 'Organization does not exist for given id'
-            })
+            raise ValidationError({"error": "Organization does not exist for given id"})
         return user
 
     def perform_update(self, serializer):
         return usecases.UserUpdateUseCase(
-            instance=self.get_object(),
-            serializer=serializer
+            instance=self.get_object(), serializer=serializer
         ).execute()
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
@@ -514,28 +527,25 @@ class UserImageUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        user_id = self.kwargs.get('user_id')
+        user_id = self.kwargs.get("user_id")
         user = CustomUser.objects.filter(pk=user_id).first()
         if not user:
-            raise ValidationError({
-                'error': 'Organization does not exist for given id'
-            })
+            raise ValidationError({"error": "Organization does not exist for given id"})
         return user
 
     def perform_update(self, serializer):
         return usecases.UserImageUpdateUseCase(
-            instance=self.get_object(),
-            serializer=serializer
+            instance=self.get_object(), serializer=serializer
         ).execute()
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
@@ -548,16 +558,17 @@ class DownloadOrganizationQRCodeView(APIView):
 
     def get(self, request, organization_id):
         organization_instance = CustomUser.objects.filter(
-            pk=organization_id,
-            is_organization=True
+            pk=organization_id, is_organization=True
         ).first()
         if not organization_instance:
             raise ValidationError({"error": "Organization not found for given id."})
 
-        return Response({
-            "organization_id": organization_id,
-            "qr_image": organization_instance.qr.url
-        })
+        return Response(
+            {
+                "organization_id": organization_id,
+                "qr_image": organization_instance.qr.url,
+            }
+        )
 
 
 class DownloadVisitorQRCodeView(APIView):
@@ -565,25 +576,18 @@ class DownloadVisitorQRCodeView(APIView):
 
     def get(self, request, visitor_id):
         visitor_instance = CustomUser.objects.filter(
-            pk=visitor_id,
-            is_organization=False,
-            is_visitor=True
+            pk=visitor_id, is_organization=False, is_visitor=True
         ).first()
         if not visitor_instance:
             raise ValidationError({"error": "Visitor  not found for given id."})
 
-        return Response({
-            "visitor_id": visitor_id,
-            "qr_image": visitor_instance.qr.url
-        })
+        return Response({"visitor_id": visitor_id, "qr_image": visitor_instance.qr.url})
 
 
 class DeleteVisitorView(generics.DestroyAPIView):
     def get_object(self):
         visitor_instance = CustomUser.objects.filter(
-            pk=self.kwargs['visitor_id'],
-            is_organization=False,
-            is_visitor=True
+            pk=self.kwargs["visitor_id"], is_organization=False, is_visitor=True
         ).first()
         if not visitor_instance:
             raise ValidationError({"error": "Visitor not found for given id. "})
@@ -605,19 +609,32 @@ class DownloadVisitorPDFView(APIView):
     def get(self, request, *args, **kwargs):
         # Retrieve path parameters from kwargs
         visitor_instance = CustomUser.objects.filter(
-            pk=self.kwargs['visitor_id'],
-            is_organization=False,
-            is_visitor=True
+            pk=self.kwargs["visitor_id"], is_organization=False, is_visitor=True
         ).first()
         if not visitor_instance:
             raise ValidationError({"error": "Visitor not found for given id. "})
-        template = get_template('visitor_details.html')
-        html = template.render({'visitor': visitor_instance})
+        template = get_template("visitor_details.html")
+        html = template.render({"visitor": visitor_instance})
 
-        pdf_response = HttpResponse(content_type='application/pdf')
-        pdf_response['Content-Disposition'] = 'attachment; filename="visitor_details.pdf"'
+        pdf_response = HttpResponse(content_type="application/pdf")
+        pdf_response["Content-Disposition"] = (
+            'attachment; filename="visitor_details.pdf"'
+        )
 
         # Generate PDF from HTML content
         pisa.CreatePDF(html, dest=pdf_response)
 
         return pdf_response
+
+
+class ApproveVisitorsToggleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        user = get_object_or_404(CustomUser, pk=user_id)
+        user.approve_visitors = not user.approve_visitors
+        user.save()
+        return Response(
+            {"message": "Approve visitors state changed successfully."},
+            status=status.HTTP_200_OK,
+        )
