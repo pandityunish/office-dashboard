@@ -125,26 +125,22 @@ class NotificationDetailAPIView(generics.RetrieveAPIView):
         return notification
 
 
-class OrganizationNotificationNotificationCountView(generics.ListAPIView):
-    serializer_class = OrganizationNotificationCountSerializer
+class OrganizationNotificationNotificationCountView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         organization_id = self.kwargs.get("organization_id")
-        notification = CustomUser.objects.filter(pk=organization_id).first()
-        if not notification:
+        organization = CustomUser.objects.filter(pk=organization_id).first()
+        if not organization:
             raise ValidationError({"error": "Organization not found."})
-        return notification
+        return organization
 
-    def get_queryset(self):
+    def get(self, request, organization_id):
         organization = self.get_object()
-        user = self.request.user
-        queryset = NotificationData.objects.filter(
-            organization_id=organization.id,
-            user_id=user.id,
-            is_seen=False
-        )
-        return queryset
+        count = NotificationData.objects.filter(
+            organization_id=organization.id, is_seen=False
+        ).count()
+        return Response({"count": count})
 
 
 class RegisterUserDeviceView(generics.CreateAPIView):

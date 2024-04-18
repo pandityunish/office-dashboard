@@ -56,27 +56,33 @@ export const postnotification=async({toast,notification_type,target_audience,tit
         console.log(error)
     }
   }
-  export const getnotificationscount=async({toast,setnotificationscount,id})=>{
+
+  export const getNotificationsCount = async ({
+    toast,
+    setnotificationscount,
+    id,
+  }) => {
     try {
-      
-        const token=localStorage.getItem("access");
-        console.log(token)
-      const response=await axiosInstance.get(`/notification/${id}/notifications-count`,{headers:{
-        "Authorization":`Bearer ${token}`
-      }});
-      console.log(response)
-      if(response.status==200){
+      const token = localStorage.getItem("access");
+      console.log(token);
+      const response = await axiosInstance.get(
+        `/notification/${id}/notifications-count`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status == 200) {
         setnotificationscount(response.data);
-         console.log(response.data);
-      } else{
-        // toast.error("Something went wrong")
-        // console.log(response)
-      } 
+      } else {
+        toast.error("Something went wrong")
+      }
     } catch (error) {
-        // toast.error("Something went wrong")
-        console.log(error)
+      toast.error("Something went wrong")
     }
-  }
+  };
+
   export const getdetailsnotifications=async({toast,setdetails,id})=>{
     try {
       
