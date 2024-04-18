@@ -9,7 +9,7 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { GoDownload } from 'react-icons/go';
 import { toast } from 'react-toastify';
-import { downloadvisitor, getnewvisitor } from '@/modules/data/dash_service';
+import { downloadvisitor, getNewVisitor } from '@/modules/data/dash_service';
 import { MdOutlineDelete } from "react-icons/md";
 import DefaultButton from '@/modules/core-ui/Button';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ export default function VisitorReport() {
     const [isFilter, setisFilter] = useState(false)
 
     useEffect(() => {
-      getnewvisitor({toasts:toast,searchtext:"",setvisitor:setnewvisitors})
+      getNewVisitor({toasts:toast,searchtext:"",setvisitor:setnewvisitors})
     }, [])
     
     const handlePageChange = (pageNumber) => {
@@ -32,7 +32,7 @@ export default function VisitorReport() {
      // You may also want to fetch data for the new page here
    };
    const handlesearch=(e)=>{
-    getnewvisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors})
+    getNewVisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors})
    }
    const pageNumbers = Array.from({ length: 2 }, (_, index) => index + 1);
 
