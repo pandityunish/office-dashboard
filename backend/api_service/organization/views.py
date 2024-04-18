@@ -785,7 +785,6 @@ class LoggedinOrganizationDataView(APIView):
 
 
 class ApproveVisitorView(APIView):
-    # authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -797,11 +796,17 @@ class ApproveVisitorView(APIView):
                 response_data = {"error": "visit_id is required"}
                 return Response(response_data)
 
-            if not is_approved:
+            if is_approved == None:
                 response_data = {"error": "is_approved is required"}
                 return Response(response_data)
 
             visit_history = OrganizationVisitHistory.objects.filter(pk=visit_id).first()
+            
+            if is_approved == False:
+                visit_history.delete()
+                response_data = {"message": "Visitor unapproved"}
+                return Response(response_data)
+
             if visit_history.organization.id == request.user.id:
                 visit_history.is_approved = is_approved
                 visit_history.save()

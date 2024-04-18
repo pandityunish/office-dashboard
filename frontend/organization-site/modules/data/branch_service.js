@@ -105,33 +105,32 @@ export const aciveanddiactivethesubadmin=async({toast,id,isactive})=>{
       console.log(error)
   }
 }
-export const unapprovethevisitor=async({toast,id})=>{
+
+export const unApproveVisitor = async ({ toast, id }) => {
   try {
-    
-      const token=localStorage.getItem("access");
-      const data={
-        "visit_id":id,
-        "is_approved":false
-      }
-    const response=await axiosInstance.post(`${approvethevisitorurl}`,
-    data,
-    {headers:{
-      "Authorization":`Bearer ${token}`
-    },
-  
-  },);
-    // console.log(response)
-    if(response.status==200){
-     
-       console.log(response.data);
-    } else{
-      // toast.error("Something went wrong")
-      // console.log(response)
-    } 
-  } catch (error) {
-      console.log(error)
+    const token = localStorage.getItem("access");
+    const data = {
+      visit_id: id,
+      is_approved: false,
+    };
+
+    const response = await axiosInstance.post(`${approvethevisitorurl}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status == 200) {
+      toast.success(response.data);
+    } else {
+      toast.error("Something went wrong");
+    }
+  } 
+  catch (error) {
+    toast.error("Something went wrong", error);
   }
-}
+};
+
 export const getorgvisitordetails=async({toast,setvisitordetails,id})=>{
   try {
     
