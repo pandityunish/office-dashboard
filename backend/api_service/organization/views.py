@@ -1274,8 +1274,7 @@ class ListOrganizationBranchView(generics.ListAPIView):
     serializer_class = ListOrganizationBranchSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = OrganizationBranchFilter
+    queryset = OrganizationBranch.objects.all()
 
     def get_object(self):
         organization = CustomUser.objects.filter(
@@ -1286,7 +1285,21 @@ class ListOrganizationBranchView(generics.ListAPIView):
         return organization
 
     def get_queryset(self):
-        return OrganizationBranch.objects.filter(organization=self.get_object())
+        search_term = self.request.query_params.get("search")
+        if search_term:
+            queryset = self.queryset.filter(
+                Q(name__icontains=search_term)
+                | Q(email__icontains=search_term)
+                | Q(mobile_no__icontains=search_term)
+                | Q(branch_no__icontains=search_term)
+                | Q(contact_person__icontains=search_term)
+                | Q(municipality__icontains=search_term)
+                | Q(city_village_area__icontains=search_term)
+                | Q(country__icontains=search_term)
+            )
+        else:
+            queryset = self.queryset
+        return queryset
 
 
 class UpdateOrganizationKYCLogoView(generics.UpdateAPIView):
