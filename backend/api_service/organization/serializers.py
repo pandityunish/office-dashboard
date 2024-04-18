@@ -529,8 +529,6 @@ class ListOrganizationBranchSerializer(serializers.ModelSerializer):
         model = OrganizationBranch
         fields = [
             'id',
-            'created_at',
-            'updated_at',
             'organization_name',
             'organization_id',
             'name',

@@ -210,6 +210,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_visitor = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_branch = models.BooleanField(default=False)
     is_manual_user = models.BooleanField(default=False)
     approve_visitor_before_access = models.BooleanField(default=False)
     check_in_check_out_feature = models.BooleanField(default=False)

@@ -1,8 +1,9 @@
 import re
 import uuid
-from io import BytesIO
 import qrcode
+from io import BytesIO
 
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -11,10 +12,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from common.choices import StatusChoices
-
 from common.models import BaseModel
-
 from common.utils import validate_file_size
+from user.models import CustomUser
 
 User = get_user_model()
 
@@ -178,26 +178,35 @@ def create_qr_code_for_visitor(sender, instance, created, **kwargs):
         instance.qr.save(f"{instance.mobile_number}-qrcode.png", img, save=True)
 
 
-class OrganizationBranch(BaseModel):
-    organization = models.ForeignKey(User, on_delete=models.CASCADE)
+class BranchUserManager(BaseUserManager):
+
+    def create_user(self, email, password=None, organization=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, organization=organization, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, organization=None, **extra_fields):
+        extra_fields.setdefault('is_branch', True)
+
+        return self.create_user(email, password, organization, **extra_fields)
+
+class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    organization = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="org_roles", null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
-
-    email = models.EmailField(max_length=200, null=True, blank=True)
-
     branch_no = models.CharField(max_length=10, null=True, blank=True)
-
     contact_person = models.CharField(max_length=200, null=True, blank=True)
-
     mobile_no = models.CharField(max_length=200, null=True, blank=True)
-
     country = models.CharField(max_length=100, null=True, blank=True)
     state = models.CharField(max_length=100, null=True, blank=True)
     district = models.CharField(max_length=100, null=True, blank=True)
     municipality = models.CharField(max_length=100, null=True, blank=True)
-
     city_village_area = models.CharField(max_length=100, null=True, blank=True)
     ward_no = models.CharField(max_length=10, null=True, blank=True)
-
     employee_size = models.CharField(max_length=20, null=True, blank=True)
     qr_image = models.ImageField(
         upload_to="branch_qr/%Y/",
@@ -213,6 +222,25 @@ class OrganizationBranch(BaseModel):
         max_length=10,
         choices=LOCK_BRANCH_CHOICES,
         default="Active",
+    )
+
+    objects = BranchUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['organization', 'password']
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        blank=True,
+        related_name="organization_branch_groups",
+        related_query_name="group",
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        blank=True,
+        related_name="organization_branch_permissions",
+        related_query_name="user_permission",
     )
 
     def __str__(self):
