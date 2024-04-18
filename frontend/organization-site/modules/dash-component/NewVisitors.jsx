@@ -5,7 +5,7 @@ import { MdOutlineVisibility } from "react-icons/md";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { GoDownload } from 'react-icons/go';
-import { downloadvisitor, getnewvisitor, getnextperviousvisitor } from '../data/dash_service';
+import { downloadvisitor, getNewVisitor, getnextperviousvisitor } from '../data/dash_service';
 import { toast } from 'react-toastify';
 import { useUserData } from '../hooks/useUserData';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ export default function NewVisitors() {
     const [setdata, setsetdata] = useState(null)
   
     useEffect(() => {
-      getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors})
+      getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors})
     }, [])
     
     const handlePageChange = (pageNumber) => {
@@ -29,7 +29,7 @@ export default function NewVisitors() {
     isError: isUserError
   } = useUserData()
    const handlesearch=(e)=>{
-    getnewvisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors})
+    getNewVisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors})
    }
    const pageNumbers = Array.from({ length: 2 }, (_, index) => index + 1);
   

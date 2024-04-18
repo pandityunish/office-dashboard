@@ -108,25 +108,36 @@ export const getuserkyc=async({toast,setkyc})=>{
       console.log(error)
   }
 }
-export const getnewvisitor=async({toast,setvisitor,searchtext,startdate,enddate})=>{
+
+export const getNewVisitor = async ({
+  toast,
+  setvisitor,
+  searchtext,
+  startdate,
+  enddate,
+}) => {
   try {
-      const token=localStorage.getItem("access");
-    const response=await axiosInstance.get(`${getrecentvisitorurl}?date_from=${startdate}&date_to=${enddate}?search=${searchtext}&is_approved=True`,{headers:{
-      "Authorization":`Bearer ${token}`
-    }});
-    console.log(response)
-    if(response.status==200){
+    const token = localStorage.getItem("access");
+    const response = await axiosInstance.get(
+      `${getrecentvisitorurl}?search=${searchtext}&is_approved=True`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status == 200) {
       setvisitor(response.data);
-       
-    } else{
-      // toast.error("Something went wrong")
-      console.log(response)
-    } 
-  } catch (error) {
-      // toast.error("Something went wrong")
-      console.log(error)
+    } else {
+      toast.error("Something went wrong")
+    }
+  } 
+  catch (error) {
+    toast.error("Something went wrong")
   }
-}
+};
+
 export const getvisitorreport=async({setvisitor})=>{
   try {
       const token=localStorage.getItem("access");

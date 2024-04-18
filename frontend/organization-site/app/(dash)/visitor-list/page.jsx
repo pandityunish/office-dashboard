@@ -9,7 +9,7 @@ import { MdKeyboardArrowRight } from "react-icons/md";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { GoDownload } from 'react-icons/go';
 import { toast } from 'react-toastify';
-import { deletevisitor, downloadvisitor, getnewvisitor } from '@/modules/data/dash_service';
+import { deletevisitor, downloadvisitor, getNewVisitor } from '@/modules/data/dash_service';
 import { MdOutlineDelete } from "react-icons/md";
 import DefaultButton from '@/modules/core-ui/Button';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ export default function Visitorlist() {
       isError: isUserError
     } = useUserData()
     useEffect(() => {
-      getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+      getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
     }, [])
     
     const handlePageChange = (pageNumber) => {
@@ -36,7 +36,7 @@ export default function Visitorlist() {
      // You may also want to fetch data for the new page here
    };
    const handlesearch=(e)=>{
-    getnewvisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+    getNewVisitor({toast:toast,searchtext:e,setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
    }
    const pageNumbers = Array.from({ length: 2 }, (_, index) => index + 1);
 
@@ -58,13 +58,13 @@ export default function Visitorlist() {
 
 const handleDateChange = (event) => {
   setSelectedDate(event.target.value);
-  getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+  getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
 
 };
 const endhandleDateChange = (event) => {
   console.log(event.target.value)
   setendselecteddate(event.target.value);
-  getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+  getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
 
 };
 const [open, setopen] = useState(false)
@@ -84,7 +84,7 @@ const [endselecteddate, setendselecteddate] = useState("")
             <ErrorDialog handleClose={handleClose} onclick={()=>{
               deletevisitor({toast:toast,id:visitorid}).finally(()=>{
                 setnewvisitors(null);
-                getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+                getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
                 handleClose();
               })
               // const newArray = newvisitors.results.filter(item => item.id !== visitorid);
@@ -180,7 +180,7 @@ const [endselecteddate, setendselecteddate] = useState("")
             Clear
           </div>
           <div className='w-[149px] mt-7' onClick={()=>{
-            getnewvisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
+            getNewVisitor({toast:toast,searchtext:"",setvisitor:setnewvisitors,enddate:endselecteddate, startdate:selectedDate})
           }}>
             <DefaultButton text="Filter" />
           </div>
