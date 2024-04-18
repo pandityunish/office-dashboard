@@ -32,10 +32,26 @@ const Page = () => {
   const [isclicked, setisclicked] = useState(0)
 const [isvisiable, setisvisiable] = useState(false)
 const [getalldevices, setgetalldevices] = useState(null)
-const [isChecked, setIsChecked] = useState(false);
+const [isChecked, setIsChecked] = useState(user.approve_visitors);
 const router=useRouter();
-const handleToggle = () => {
+
+const handleToggle = async () => {
   setIsChecked(!isChecked);
+
+    const response = await axiosInstance.post(
+      `/user/${user.id}/toggle-approve-visitors/`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`
+        }
+      }
+    );
+
+    if (response.status === 200) {
+      toast.success("Approve visitors status changed successfully.");
+    } else {
+    }
 };
 const extractDeviceDetails = (deviceType) => {
   const match = deviceType.match(/\(([^)]+)\)/);
@@ -299,13 +315,13 @@ const onSubmit=async()=>{
           <p className='font-semibold text-sm pb-1'>off/on</p>
          <div
     className={`w-10 h-5 rounded-2xl flex items-center relative  cursor-pointer  ${
-      isChecked ? 'bg-green-500' : 'bg-primaryblue'
+      isChecked ? 'bg-primaryblue' : 'bg-green-500'
     }`}
     onClick={handleToggle}
   >
     <div
       className={`w-4 h-4 rounded-full bg-white absolute transition-transform transform ${
-        isChecked ? 'left-0' : 'right-0'
+        isChecked ? 'right-0' : 'left-0'
       } `}
     ></div>
   </div>

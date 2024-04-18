@@ -13,6 +13,7 @@ from .views import (
     UserListView,
     VerifyOTPView,
     GenerateTestQR,
+    ApproveVisitorsToggleView,
     qr_code_view,
     get_all_permissions,
     AddStaffForORG,
@@ -66,5 +67,6 @@ urlpatterns = [
         views.ListALluser.as_view(),
         name='list_visitor'
     ),
+    path('<int:user_id>/toggle-approve-visitors/', ApproveVisitorsToggleView.as_view(), name='toggle-approve-visitors'),
 
 ]

@@ -89,6 +89,7 @@ class CustomUserSerializerLoginDetails(serializers.ModelSerializer):
             "qr",
             "validation_token_of_organization",
             "profile_picture",
+            "approve_visitors"
         )
 
         read_only_fields = ("is_admin", "is_staff", "validation_token_of_organization")
