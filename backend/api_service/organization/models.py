@@ -321,3 +321,28 @@ class AdsBanner(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
+class Guest(models.Model):
+    full_name = models.CharField(max_length=100)
+    mobile_number = models.CharField(max_length=10)
+    email = models.EmailField()
+    number_of_guest = models.IntegerField()
+    number_of_child_guest = models.IntegerField()
+    number_of_room = models.IntegerField()
+    type_of_id = models.CharField(max_length=200)
+    id_number = models.IntegerField()
+    advanced_payment = models.IntegerField()
+    remaining_payment = models.IntegerField() 
+    checkout_date = models.DateField()
+    payment_method = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.full_name
+
+      
+    
