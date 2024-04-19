@@ -21,10 +21,13 @@ export default function SubAdminList() {
     const [index, setindex] = useState(0)
     const handlesearch = (e) => {
       setopen(false);
-      }
-      useEffect(() => {
-        getsubadminlist({ toast: toast,  setsubadmin: setsubadmin })
-      }, [])
+      getsubadminlist({ toast: toast,  setsubadmin: setsubadmin, searchtext: e })
+    }
+
+    useEffect(() => {
+        getsubadminlist({ toast: toast,  setsubadmin: setsubadmin, searchtext: '' })
+    }, [])
+
      const handleClose=()=>{
       setopen(false)
      }
