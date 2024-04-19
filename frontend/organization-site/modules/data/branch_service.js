@@ -183,8 +183,8 @@ export const getsubadminlist=async({toast,setsubadmin,searchtext})=>{
       }});
       // console.log(response)
       if(response.status==200){
-        setsubadmin(response.data);
-         console.log(response.data);
+        setsubadmin(response.data.results);
+         console.log(response.data.results);
       } else{
         toast.error("Something went wrong")
         // console.log(response)

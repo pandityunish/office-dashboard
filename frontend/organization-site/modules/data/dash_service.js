@@ -328,3 +328,24 @@ export const getvisitorcount=async({toast,setcount,id})=>{
       console.log(error)
   }
 }
+
+export const filterAllVisitors = async ({ setdata }) => {
+  try {
+    const token = localStorage.getItem("access");
+    const response = await axiosInstance.get(
+      `/user/visitor/all?limit=1&offset=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.status == 200) {
+      setdata(response.data);
+    } else {
+      toast.error("Something went wrong");
+    }
+  } catch (error) {
+    toast.error("Something went wrong");
+  }
+};
