@@ -38,7 +38,8 @@ export default function CreateBranch() {
         "ward_no": data.ward,
         "employee_size": "300",
         "lock_branch": "Active",
-        "mobile_no":data.number
+        "mobile_no":data.number,
+        "password":data.password
     },
     
             {headers: {

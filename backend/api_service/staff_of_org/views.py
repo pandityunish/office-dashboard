@@ -14,7 +14,7 @@ from .models import StaffUser
 from .serializers import StaffUserSerializer
 
 from organization.models import OrganizationBranch
-
+from user.models import CustomUser
 
 # Staff and Branch login APIS
 class BranchAndStaffLoginView(APIView):
@@ -63,6 +63,18 @@ class StaffUserViewSet(viewsets.ModelViewSet):
         mutable_data["password"] = hashed_password
         serializer = self.get_serializer(data=mutable_data)
         serializer.is_valid(raise_exception=True)
+
+        custom_user = CustomUser.objects.create_user(
+            mobile_number=mutable_data.get('mobile_number'),
+            full_name=mutable_data.get('full_name'),
+            email=mutable_data.get('email'),
+            password=raw_password,
+            organization_type=mutable_data.get('organization_type'),
+            is_staff=True,
+            is_active=True,
+            is_sms_verified=True,
+        )
+
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

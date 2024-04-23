@@ -20,6 +20,7 @@ class CustomUserAdmin(CustomModelAdmin):
         "is_organization",
         "is_active",
         "is_staff",
+        "is_branch",
         "is_visitor",
         # "is_admin",
         # "address",

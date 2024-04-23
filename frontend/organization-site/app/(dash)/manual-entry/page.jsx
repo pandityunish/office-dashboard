@@ -457,7 +457,7 @@ router.push("/manual-preview")
                           <option value="" className='font-semibold text-[#333333] '>
                             Select purpose
                           </option>
-                          {purposes.map(org => (
+                          {purposes?.map(org => (
                             <option key={org.id} value={org.text_field} className='text-sm  font-semibold text-[#333333]'>
                               {org.text_field}
                             </option>
