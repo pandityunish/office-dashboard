@@ -21,7 +21,7 @@ from .serializers import (  # OrganizationSerializer,
     OrganizationBranchSerializer, ListOrganizationBranchSerializer, UpdateOrganizationKYCLogoSerializer,
     CreateOrganizationKYCSerializer, CreateOrganizationKycSerializer, OrganizationListKYCSerializer,
     ScanOrganizationByVisitorSerializer, VisitorDataSerializer, ManualOrganizationEntrySerializer,
-    VisitorCountsSerializer, VisitorDataForPdfSerializer
+    VisitorCountsSerializer, VisitorDataForPdfSerializer,GuestSerilizer
 )
 from .models import (
     OrganizationBranch,
@@ -1491,3 +1491,22 @@ class ListWaitingVisitorsView(generics.ListAPIView):
             organization=self.get_object(),
             is_approved=False
         )
+
+
+
+# //creating class to save the userguest info 
+
+
+
+class Guestinfo(APIView):
+
+   
+
+    def post(self, request):
+        print(request.data)
+        serializer = GuestSerilizer(data=request.data)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
