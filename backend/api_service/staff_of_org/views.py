@@ -92,15 +92,18 @@ class StaffUserViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
+        organization_id = self.request.user.id
+        
+        queryset = self.queryset.filter(organization=organization_id)
+        
         search_term = self.request.query_params.get("search")
         if search_term:
-            queryset = self.queryset.filter(
+            queryset = queryset.filter(
                 Q(full_name__icontains=search_term)
                 | Q(email__icontains=search_term)
                 | Q(mobile_number__icontains=search_term)
                 | Q(address__icontains=search_term)
                 | Q(role__icontains=search_term)
             )
-        else:
-            queryset = self.queryset
+        
         return queryset
