@@ -34,7 +34,6 @@ function ResetPassword () {
   
   const onSubmit = async data => {
     try {
-      console.log(value1.number)
       const data1={
         ...data,
         mobile_number:value1.number
@@ -58,6 +57,10 @@ function ResetPassword () {
           <h2 className='text-2xl font-bold leading-tight text-black sm:text-4xl mt-6'>
              Reset Password
           </h2>
+
+          <p className='mt-2 text-xs text-[#090A0A] font-normal font-inter'>
+          The OTP has been sent to your email and mobile number to reset the password.
+          </p>
          
           <form onSubmit={handleSubmit(onSubmit)} className='mt-6'>
             <div className='space-y-5'>
