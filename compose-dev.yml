@@ -49,8 +49,20 @@ services:
       - ./envs/dev/backend.env
     volumes:
       - ./backend/api_service:/app/backend/api_service
+    depends_on:
+      - db
+    restart: always
 
-
+  db:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    # environment:
+    #   POSTGRES_DB: ${DB_NAME}
+    #   POSTGRES_USER: ${DB_USER}
+    #   POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
 
   # backup_service:
@@ -70,3 +82,4 @@ services:
 volumes:
   backups:
   static:
+  pgdata:

@@ -10,11 +10,12 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.auth.hashers import make_password
 
 from common.choices import StatusChoices
 from common.models import BaseModel
 from common.utils import validate_file_size
-from user.models import CustomUser
+from user.models import CustomUser\
 
 User = get_user_model()
 
@@ -58,11 +59,11 @@ class OrganizationKYC(BaseModel):
     municipality = models.CharField(max_length=100, blank=True, null=True)
     city_village_area = models.CharField(max_length=100, blank=True, null=True)
     ward_no = models.IntegerField(null=True, blank=True)
-    contact_person_full_name = models.CharField(max_length=20, null=True, blank=True)
+    contact_person_full_name = models.CharField(max_length=200, null=True, blank=True)
     organization_summary = models.TextField(null=True, blank=True)
-    whatsapp_viber_number = models.CharField(max_length=20, null=True, blank=True)
-    secondary_number = models.CharField(max_length=20, blank=True, null=True)
-    telephone_number = models.CharField(max_length=20, blank=True, null=True)
+    whatsapp_viber_number = models.CharField(max_length=200, null=True, blank=True)
+    secondary_number = models.CharField(max_length=200, blank=True, null=True)
+    telephone_number = models.CharField(max_length=200, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     logo = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
     registration_certificate = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
@@ -76,7 +77,7 @@ class OrganizationKYC(BaseModel):
 
     status = models.CharField(
         choices=StatusChoices.choices,
-        max_length=20,
+        max_length=200,
         default=StatusChoices.PENDING
     )
 
@@ -130,8 +131,8 @@ class OrganizationVisitHistory(BaseModel):
     departed_at = models.DateTimeField(null=True, blank=True)
     photo = models.ImageField(upload_to="visitors/%Y/%m/%d/", blank=True, null=True)
     qr = models.ImageField(upload_to="qr/%Y/", blank=True, null=True)
-    type_of_id = models.CharField(max_length=20, choices=TYPE_OF_ID, blank=True, null=True, )
-    id_number = models.CharField(max_length=20, blank=True, null=True, )
+    type_of_id = models.CharField(max_length=200, choices=TYPE_OF_ID, blank=True, null=True, )
+    id_number = models.CharField(max_length=200, blank=True, null=True, )
     visit_type = models.CharField(
         max_length=10,
         choices=VISIT_CHOICES,
@@ -195,7 +196,8 @@ class BranchUserManager(BaseUserManager):
         return self.create_user(email, password, organization, **extra_fields)
 
 class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, default='example@example.com')
+    password = models.CharField(max_length=128, default=make_password('default_password'))
     organization = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="org_roles", null=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     branch_no = models.CharField(max_length=10, null=True, blank=True)
@@ -207,7 +209,7 @@ class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
     municipality = models.CharField(max_length=100, null=True, blank=True)
     city_village_area = models.CharField(max_length=100, null=True, blank=True)
     ward_no = models.CharField(max_length=10, null=True, blank=True)
-    employee_size = models.CharField(max_length=20, null=True, blank=True)
+    employee_size = models.CharField(max_length=200, null=True, blank=True)
     qr_image = models.ImageField(
         upload_to="branch_qr/%Y/",
         blank=True,
@@ -308,9 +310,9 @@ class Device(models.Model):
     )
 
     name_of_device = models.CharField(max_length=255, null=True, blank=True)
-    device_type = models.CharField(max_length=20, choices=DEVICE_TYPES, default='other', null=True, blank=True)
+    device_type = models.CharField(max_length=200, choices=DEVICE_TYPES, default='other', null=True, blank=True)
     organization = models.ForeignKey(User, related_name='device_org', on_delete=models.CASCADE, null=True, blank=True)
-    ip_address = models.CharField(max_length=20, null=True, blank=True)
+    ip_address = models.CharField(max_length=200, null=True, blank=True)
     create_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

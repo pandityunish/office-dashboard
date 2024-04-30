@@ -21,6 +21,6 @@ COPY backend/api_service /app/backend/api_service
 EXPOSE 8000
 
 # Run the command to start the Django development server
-RUN python manage.py migrate
+# RUN python manage.py migrate
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
