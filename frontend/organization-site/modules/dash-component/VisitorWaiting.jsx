@@ -84,7 +84,7 @@ export default function VisitorWaiting() {
           </div>
         ) : (
           <>
-            {waitingVisitor.results.length <= 0 ? (
+            {waitingVisitor?.results?.length <= 0 ? (
               <div className="flex flex-col h-full font-bold text-sm leading-5  items-center justify-center">
                 <p>No Visitors</p>
               </div>

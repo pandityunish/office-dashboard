@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.apps import apps
 from django.db import models
+from django.db.utils import IntegrityError
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -318,6 +319,51 @@ class BranchList(APIView):
 
         serializer = BranchSerializer(data=data, context={"request": request})
 
+        mobile_number = data.get("mobile_no")
+        address = (
+            data.get("ward_no")
+            + ", "
+            + data.get("city_village_area")
+            + ", "
+            + data.get("municipality")
+            + ", "
+            + data.get("district")
+            + ", "
+            + data.get("state")
+            + ", "
+            + data.get("country")
+        )
+
+        try:
+            organization = CustomUser.objects.get(id=request.user.id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Organization not found."}, status=404)
+
+        organization_type = organization.organization_type
+
+        if CustomUser.objects.filter(mobile_number=mobile_number).exists():
+            return Response(
+                {"error": "A user with this mobile number already exists."}, status=400
+            )
+
+        try:
+            custom_user = CustomUser.objects.create_user(
+                mobile_number=mobile_number,
+                full_name=data.get("name"),
+                email=data.get("email"),
+                password=raw_password,
+                organization_type=organization_type,
+                is_branch=True,
+                is_active=True,
+                is_sms_verified=True,
+                address=address,
+            )
+        except IntegrityError:
+            return Response(
+                {"error": "Failed to create user, please check the details."},
+                status=400,
+            )
+
         if serializer.is_valid():
             serializer.save()
         else:
@@ -329,10 +375,10 @@ class BranchList(APIView):
             "message": f"{serializer.validated_data.get('name')} Branch was created Successfully",
         }
         notification_serializer = NotificationSerializer(data=notification_data)
-
         if notification_serializer.is_valid():
             notification_serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=201)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -874,7 +920,7 @@ class ApproveVisitorView(APIView):
                 return Response(response_data)
 
             visit_history = OrganizationVisitHistory.objects.filter(pk=visit_id).first()
-            
+
             if is_approved == False:
                 visit_history.delete()
                 response_data = {"message": "Visitor unapproved"}
