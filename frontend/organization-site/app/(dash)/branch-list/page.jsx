@@ -52,14 +52,13 @@ export default function BranchList() {
       enddate: endSelectedDate,
       page: currentPage,
       perPage: branchesPerPage,
-      setTotalBranches: setTotalBranches,
     });
   };
 
   const handleSetBranches = (data) => {
     if (data.results && data.results.length > 0) {
       setNewVisitors(data.results);
-      setTotalBranches(data.total);
+      setTotalBranches(data.count);
     } else {
       setNewVisitors([]);
       setTotalBranches(0);
@@ -138,6 +137,7 @@ export default function BranchList() {
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <div className="lg:w-full w-[1367px]  mt-10 rounded-xl p-7 shadow-lg bg-white font-inter">
       <ErrorDialog
@@ -389,14 +389,21 @@ export default function BranchList() {
             <p className="font-normal text-xs mt-3">entries</p>
           </div>
           <div className="flex space-x-2 items-center mt-4">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <MdKeyboardArrowLeft className="text-2xl" />
-            </button>
+            {totalBranches > branchesPerPage && (
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
+              >
+                <MdKeyboardArrowLeft className="text-2xl" />
+              </button>
+            )}
 
-            {visiblePages.map((page) => (
+            {totalBranches > branchesPerPage && visiblePages.map((page) => (
               <button
                 key={page}
                 className={`w-[24px] h-[24px] flex items-center justify-center rounded-md text-xs font-inter font-normal ${
@@ -410,12 +417,19 @@ export default function BranchList() {
               </button>
             ))}
 
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <MdKeyboardArrowRight className="text-2xl" />
-            </button>
+            {totalBranches > branchesPerPage && (
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
+              >
+                <MdKeyboardArrowRight className="text-2xl" />
+              </button>
+            )}
           </div>
         </div>
       </div>
