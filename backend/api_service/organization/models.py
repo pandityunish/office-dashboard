@@ -221,7 +221,7 @@ class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
     ]
 
     lock_branch = models.CharField(
-        max_length=10,
+        max_length=100,
         choices=LOCK_BRANCH_CHOICES,
         default="Active",
     )

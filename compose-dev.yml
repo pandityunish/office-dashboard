@@ -46,7 +46,7 @@ services:
     ports:
       - "8002:8000"
     env_file:
-      - ./envs/dev/backend.env
+      - ./backend/api_service/.env
     volumes:
       - ./backend/api_service:/app/backend/api_service
     depends_on:
@@ -57,10 +57,6 @@ services:
     image: postgres:latest
     ports:
       - "5433:5432"
-    # environment:
-    #   POSTGRES_DB: ${DB_NAME}
-    #   POSTGRES_USER: ${DB_USER}
-    #   POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
 
