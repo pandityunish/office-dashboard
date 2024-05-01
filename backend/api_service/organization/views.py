@@ -1331,20 +1331,23 @@ class ListOrganizationBranchView(generics.ListAPIView):
         return organization
 
     def get_queryset(self):
+        organization_id = self.kwargs.get("organization_id")
         search_term = self.request.query_params.get("search")
+
+        queryset = OrganizationBranch.objects.filter(organization_id=organization_id)
+
         if search_term:
-            queryset = self.queryset.filter(
-                Q(name__icontains=search_term)
-                | Q(email__icontains=search_term)
-                | Q(mobile_no__icontains=search_term)
-                | Q(branch_no__icontains=search_term)
-                | Q(contact_person__icontains=search_term)
-                | Q(municipality__icontains=search_term)
-                | Q(city_village_area__icontains=search_term)
-                | Q(country__icontains=search_term)
+            queryset = queryset.filter(
+                Q(name__icontains=search_term) |
+                Q(email__icontains=search_term) |
+                Q(mobile_no__icontains=search_term) |
+                Q(branch_no__icontains=search_term) |
+                Q(contact_person__icontains=search_term) |
+                Q(municipality__icontains=search_term) |
+                Q(city_village_area__icontains=search_term) |
+                Q(country__icontains=search_term)
             )
-        else:
-            queryset = self.queryset
+
         return queryset
 
 
