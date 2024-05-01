@@ -3,7 +3,7 @@ import { PiGitBranchBold } from "react-icons/pi";
 import { FiMinus } from "react-icons/fi";
 import { FaArrowRight } from 'react-icons/fa6';
 import { GoPlus } from "react-icons/go";
-import { getorgbranch } from '../data/dash_service';
+import { getOrgBranchList } from '../data/dash_service';
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation';
 import { TbTopologyStar } from 'react-icons/tb';
@@ -21,7 +21,7 @@ export default function BranchSection() {
       if(user===null|| isUserLoading){
 
       }else{
-      getorgbranch({toast:toast,setbranches:setallbranches,searchtext:"",enddate:"",id:user.id,startdate:""})
+      getOrgBranchList({toast:toast,setBranches:setallbranches,searchtext:"",enddate:"",id:user.id,startdate:""})
       }
     }, [user])
     

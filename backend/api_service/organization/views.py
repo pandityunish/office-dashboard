@@ -81,7 +81,8 @@ from .serializers import (
     OrganizationGetSerializer,
 )
 
-from .filters import OrganizationBranchFilter, OrganizationVisitHistoryFilter
+from .filters import OrganizationVisitHistoryFilter
+from .pagination import StandardResultsSetPagination
 
 from user.utils import generate_otp, send_otp_to_user
 from user.views import generate_sms_text
@@ -1321,6 +1322,7 @@ class ListOrganizationBranchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     queryset = OrganizationBranch.objects.all()
+    pagination_class = StandardResultsSetPagination
 
     def get_object(self):
         organization = CustomUser.objects.filter(

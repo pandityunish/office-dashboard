@@ -1,6 +1,5 @@
 'use client'
 
-import { getorgbranch } from "@/modules/data/dash_service";
 import SwitchButton from "@/modules/kyc-component/SwitchButton";
 import { useEffect, useState } from "react";
 import { IoSearchSharp } from "react-icons/io5";

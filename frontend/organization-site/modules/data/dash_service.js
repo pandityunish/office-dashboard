@@ -1,27 +1,44 @@
-import { allorgbranchesurl, baseurl, filtervisitorurl, getadsbannerurl, getrecentvisitorurl, getsubscriptionurl } from "../apiurl";
+import { allorgbranchesurl, baseurl, filtervisitorurl, getadsbannerurl, getrecentvisitorurl, getsubscriptionurl,setTotalBranches } from "../apiurl";
 import axiosInstance from "../axios"
 
-export const getorgbranch=async({toast,setbranches,searchtext,startdate,enddate,id})=>{
-    try {
-      console.log(searchtext);
-        const token=localStorage.getItem("access");
-        console.log(token)
-      const response=await axiosInstance.get(`/organization/${id}/branches/list?search=${searchtext}&date_min=${startdate}&date_max=${enddate}`,{headers:{
-        "Authorization":`Bearer ${token}`
-      }});
-      // console.log(response)
-      if(response.status==200){
-        setbranches(response.data);
-         console.log(response.data);
-      } else{
-        toast.error("Something went wrong")
-        // console.log(response)
-      } 
-    } catch (error) {
-        // toast.error("Something went wrong")
-        console.log(error)
+export const getOrgBranchList = async ({
+  toast,
+  setBranches,
+  searchtext,
+  startdate,
+  enddate,
+  id,
+  page = 1,
+  perPage = 10,
+}) => {
+  try {
+    const token = localStorage.getItem("access");
+    const response = await axiosInstance.get(
+      `/organization/${id}/branches/list`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          date_min: startdate,
+          date_max: enddate,
+          page: page,
+          page_size: perPage,
+          search: searchtext,
+        },
+      }
+    );
+    if (response.status === 200) {
+      setBranches(response.data);
+    } else {
+      toast.error("Something went wrong");
     }
-}
+  } catch (error) {
+    console.error("Error fetching branches:", error);
+    toast.error("Failed to fetch branches. Please try again later.");
+  }
+};
+
 export const deletebranch=async({toast,id})=>{
   try {
   
