@@ -67,10 +67,10 @@ const notificationfilter=[
 ];
 const idTypes=[
     {id:1,title:"Citizenship",value:"Citizenship"},
-    {id:2,title:"Driving License",value:"Driving License"},
+    {id:2,title:"Driving License",value:"License"},
     {id:3,title:"Passport",value:"Passport"},
     {id:4,title:"National ID Card",value:"National ID Card"},
-    {id:5,title:"PAN Card",value:"PAN Card"},
+    {id:5,title:"Pan Card",value:"Pan Card"},
 ];
 const organizationNatureTypes = [
     { id: 1, title: "Service Based", value: "service-based" },

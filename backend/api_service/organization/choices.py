@@ -1,5 +1,7 @@
 TYPE_OF_ID = [
-        ("License", "License"),
-        ("Passport", "Passport"),
-        ("Citizenship", "Citizenship"),
-    ]
+    ("License", "driving_license"),
+    ("Passport", "Passport"),
+    ("Citizenship", "Citizenship"),
+    ("Pan Card", "Pan Card"),
+    ("National ID Card", "National ID Card"),
+]
