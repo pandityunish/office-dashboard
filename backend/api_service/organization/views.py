@@ -358,6 +358,7 @@ class BranchList(APIView):
                 is_active=True,
                 is_sms_verified=True,
                 address=address,
+                creator=organization
             )
         except IntegrityError:
             return Response(
