@@ -17,6 +17,7 @@ import dots from "../../assets/dot shape.png";
 import { MdOutlineVisibilityOff } from "react-icons/md";
 import AuthSlider from "@/modules/auth-component/AuthSlider";
 import { baseurl } from "@/modules/apiurl";
+import { generateToken } from "./firebase";
 
 const Page = () => {
   const router = useRouter();
@@ -32,44 +33,41 @@ const Page = () => {
   const [password, setPassword] = useState(storedPassword || "");
   const [isloading, setisloading] = useState(false);
   const [isvisiable, setisvisiable] = useState(false);
+
+  const handleLoginSuccess = async (response) => {
+    localStorage.setItem("access", response.data.access);
+    localStorage.setItem("refresh", response.data.refresh);
+
+    toast.success("Logged in Successfully");
+    
+    router.push("/dash");
+  };
+
   const onLoginSubmit = async (data) => {
     try {
       setisloading(true);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (emailRegex.test(data.mobile_number)) {
-        const data1 = {
-          username: data.mobile_number,
-          password: data.password,
-          login_type: "email",
-        };
-        const response = await axiosInstance.post("/user/login/", data1);
-        if (response.status === 200) {
-          localStorage.setItem("access", response.data.access);
-          localStorage.setItem("refresh", response.data.refresh);
-          toast.success("Logged in Successfully");
-          router.push("/dash");
-          // setisloading(false);
-        } else {
-          setisloading(false);
-          toast.error("Login Failed, check your credentials");
-        }
+      const login_type = emailRegex.test(data.mobile_number)
+        ? "email"
+        : "mobile";
+
+        const fcmToken = await generateToken();
+        localStorage.setItem("fcmToken", fcmToken);
+
+      const requestData = {
+        username: data.mobile_number,
+        password: data.password,
+        login_type: login_type,
+        fcm_token: fcmToken,
+      };
+
+      const response = await axiosInstance.post("/user/login/", requestData);
+
+      if (response.status === 200) {
+        handleLoginSuccess(response);
       } else {
-        const data1 = {
-          username: data.mobile_number,
-          password: data.password,
-          login_type: "mobile",
-        };
-        const response = await axiosInstance.post("/user/login/", data1);
-        if (response.status === 200) {
-          localStorage.setItem("access", response.data.access);
-          localStorage.setItem("refresh", response.data.refresh);
-          toast.success("Logged in Successfully");
-          router.push("/dash");
-          // setisloading(false);
-        } else {
-          setisloading(false);
-          toast.error("Login Failed, check your credentials");
-        }
+        setisloading(false);
+        toast.error("Login Failed, check your credentials");
       }
     } catch (error) {
       setisloading(false);
@@ -84,10 +82,10 @@ const Page = () => {
       }
     }
   };
+
   useEffect(() => {
     const initialValue = document.body.style.zoom;
 
-    // Change zoom level on mount
     document.body.style.zoom = "80%";
     return () => {
       document.body.style.zoom = initialValue;

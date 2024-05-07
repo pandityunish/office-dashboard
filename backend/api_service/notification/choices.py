@@ -1,6 +1,8 @@
 VISITOR_CHOICES = (
+        ('staff', 'Staff'),
         ('visitor', 'Visitor'),
         ('branch', 'Branch'),
+        ('organization', 'Organization'),
         ('all', 'All'),
     )
 

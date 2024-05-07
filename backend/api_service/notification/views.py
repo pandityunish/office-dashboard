@@ -55,21 +55,51 @@ class UserNotificationList(APIView):
         return Response(serializer.data)
 
 
+from rest_framework.exceptions import PermissionDenied
+
+from django.db.models import Q
+
 class OrganizationNotificationList(generics.ListAPIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsOrganizationUser]
+    permission_classes = [IsAuthenticated]
     serializer_class = NotificationSerializer
     filterset_class = NotificationDataFilter
 
-    def get_object(self):
-        organization_id = self.kwargs.get("organization_id")
-        user = CustomUser.objects.filter(pk=organization_id).first()
-        if not user:
+    def get_organization(self, organization_id):
+        organization = CustomUser.objects.filter(pk=organization_id).first()
+        if not organization:
             raise ValidationError({"error": "Organization not found."})
-        return user
+        return organization
 
     def get_queryset(self):
-        return NotificationData.objects.filter(organization_id=self.get_object())
+        organization_id = self.kwargs.get("organization_id")
+        organization = self.get_organization(organization_id)
+
+        if self.request.user != organization:
+            raise PermissionDenied("You do not have permission to view notifications for this organization.")
+
+        is_branch = self.request.user.is_branch
+        is_staff = self.request.user.is_staff
+        is_visitor = self.request.user.is_visitor
+        is_admin = self.request.user.is_admin
+        is_organization = self.request.user.is_organization
+
+        filters = Q()
+        if is_branch:
+            filters |= Q(audience='branch')
+        if (is_staff and is_admin==False):
+            filters |= Q(audience='staff')
+        if is_visitor:
+            filters |= Q(audience='visitor')
+        if is_organization:
+            filters |= Q(audience='organization')
+
+        if not (is_branch or is_staff or is_visitor):
+            filters |= Q()
+
+        return NotificationData.objects.filter(filters)
+
+
 
 
 from rest_framework import viewsets

@@ -38,7 +38,7 @@ from .models import CustomUser, Subscription
 from api_service.settings import production
 from .utils import generate_otp, send_otp_to_user, generate_sms_text, send_email
 
-from organization.models import OrganizationKYC
+from organization.models import OrganizationKYC, OrganizationFCMToken
 
 
 @api_view(["GET"])
@@ -638,3 +638,24 @@ class ApproveVisitorsToggleView(APIView):
             {"message": "Approve visitors state changed successfully."},
             status=status.HTTP_200_OK,
         )
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        fcm_token = request.data.get('fcm_token')
+
+        if not fcm_token:
+            return Response({'error': 'FCM token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            fcm_tokens = OrganizationFCMToken.objects.filter(fcm_token=fcm_token, organization=request.user)
+            
+            if fcm_tokens.exists():
+                fcm_tokens.delete()
+                return Response({'message': 'FCM tokens deleted successfully.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'FCM token not found for the authenticated user.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        except OrganizationFCMToken.DoesNotExist:
+            return Response({'error': 'FCM token not found.'}, status=status.HTTP_404_NOT_FOUND)

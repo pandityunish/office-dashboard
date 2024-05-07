@@ -17,7 +17,7 @@ from .views import (
     qr_code_view,
     get_all_permissions,
     AddStaffForORG,
-    SubsOfOrg, UserUpdateView, UserImageUpdateView,
+    SubsOfOrg, UserUpdateView, UserImageUpdateView, LogoutAPIView
 )
 
 urlpatterns = [
@@ -68,5 +68,6 @@ urlpatterns = [
         name='list_visitor'
     ),
     path('<int:user_id>/toggle-approve-visitors/', ApproveVisitorsToggleView.as_view(), name='toggle-approve-visitors'),
+    path("logout/", LogoutAPIView.as_view(), name="logout"),
 
 ]

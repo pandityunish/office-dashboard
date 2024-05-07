@@ -52,9 +52,11 @@ const notificationTypes = [
   { id: 2, title: "other ", value: "other" },
 ];
 const notificationAudiences = [
-  { id: 1, title: "Visitors", value: "visitor" },
-  { id: 2, title: "Branch ", value: "branch" },
-  { id: 3, title: "All", value: "all" },
+  { id: 1, title: "All", value: "all" },
+  { id: 2, title: "Visitors", value: "visitor" },
+  { id: 3, title: "Branch", value: "branch" },
+  { id: 4, title: "Staff", value: "staff" },
+  { id: 5, title: "Organization", value: "organization" },
 ];
 const notificationfilter = [
   { id: 1, title: "Week", value: "week" },

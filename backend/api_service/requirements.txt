@@ -30,3 +30,4 @@ xhtml2pdf>=0.2.15
 django-ckeditor==6.7.0
 packaging==23.1
 fcm-django>=2.0.1
+firebase-admin

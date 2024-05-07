@@ -15,7 +15,7 @@ from django.contrib.auth.hashers import make_password
 from common.choices import StatusChoices
 from common.models import BaseModel
 from common.utils import validate_file_size
-from user.models import CustomUser\
+from user.models import CustomUser
 
 User = get_user_model()
 
@@ -353,3 +353,12 @@ class AdsBanner(models.Model):
 
     def __str__(self):
         return self.title
+
+class OrganizationFCMToken(models.Model):
+    organization = models.ForeignKey(User, related_name='org_fcm_token', on_delete=models.CASCADE, null=True, blank=True)
+    create_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    fcm_token = models.CharField(max_length=300, null=True, blank=True)
+
+    def __str__(self):
+        return self.fcm_token

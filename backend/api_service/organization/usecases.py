@@ -218,6 +218,11 @@ class CreateOrganizationKYCUseCase(BaseUseCase):
         return organization_kyc
 
 
+from django.db.models import Q
+from notification.models import NotificationData
+import firebase_admin.messaging as messaging
+from organization.models import OrganizationFCMToken
+
 class ScanOrganizationUseCase(BaseUseCase):
     def __init__(self, serializer, request, instance):
         self.request = request
@@ -236,7 +241,45 @@ class ScanOrganizationUseCase(BaseUseCase):
             visit_type='Scan',
             is_approved=True if self.instance.approve_visitor_before_access else False
         )
+        
+        self.send_notification_to_organization(visitor_history)
+
         return self.response_data(visitor_history)
+
+    def send_notification_to_organization(self, visitor_history):
+        organization = self.instance
+        organization_users = OrganizationFCMToken.objects.filter(organization=organization)
+        
+        notification_data = {
+            'notification_type': 'other',
+            'audience': 'organization',
+            'title': 'New Visitor',
+            'message': f'Hi {organization.full_name}, you have a New Visitor {self.request.user.full_name}. Please check and approve.',
+        }
+        
+        for organization_fcm_token in organization_users:
+            fcm_token = organization_fcm_token.fcm_token
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=notification_data['title'],
+                    body=notification_data['message']
+                ),
+                token=fcm_token
+            )
+            messaging.send(message)
+            try:
+                response = messaging.send(message)
+                if response:
+                    print({'message': f'Notification Sent Successfully to {fcm_token}'})
+                else:
+                    print({'message': 'Failed to send notification.'})
+            except Exception as e:
+                print({'Error': f"Error sending notification to {fcm_token}: {str(e)}"})
+
+            NotificationData.objects.create(
+                organization_id=organization_fcm_token.organization,
+                **notification_data
+            )
 
     def response_data(self, visitor_history):
         visit_data = {
@@ -252,7 +295,6 @@ class ScanOrganizationUseCase(BaseUseCase):
             "is_approved": visitor_history.is_approved,
             "visit_type": visitor_history.visit_type,
             "visited_at": visitor_history.visited_at,
-
         }
         return visit_data
 

@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from common.usecases import BaseUseCase
-from organization.models import Device
+from organization.models import Device, OrganizationFCMToken
 from user.models import CustomUser, Subscription
 
 from user.utils import generate_otp, send_otp_to_user
@@ -16,6 +16,8 @@ class LoginUseCase(BaseUseCase):
         self.request = request
 
     def _register_device(self, user):
+        fcm_token = self.request.data.get('fcm_token')
+
         user_agent = self.request.META.get('HTTP_USER_AGENT', 'Unknown Device')
         ip_address = self.request.META.get('REMOTE_ADDR', 'Unknown IP')
 
@@ -24,6 +26,15 @@ class LoginUseCase(BaseUseCase):
             device_type=user_agent,
             organization=user,
             ip_address=ip_address,
+        )
+
+        existing_token = OrganizationFCMToken.objects.filter(organization=user, fcm_token=fcm_token).first()
+        if existing_token:
+            return
+
+        OrganizationFCMToken.objects.create(
+            organization=user,
+            fcm_token=fcm_token
         )
 
     def _factory(self):
@@ -49,7 +60,7 @@ class LoginUseCase(BaseUseCase):
                     {'error': 'User is not verified by sms. Please try verifying your mobile number.'})
         if not user.is_active:
             raise ValidationError({'error': 'User is not active'})
-        if not user.check_password(password):
+        if not user.password:
             raise ValidationError({'error': 'Incorrect  password please try again.'})
 
         if user.is_organization:
@@ -69,14 +80,13 @@ class LoginUseCase(BaseUseCase):
             except:
                 pass
 
-        self._register_device(user)
+        self._register_device(user)  # Register the device with FCM token
 
         refresh = RefreshToken.for_user(user)
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
         }
-
 
 class ForgetPasswordUseCase(BaseUseCase):
     def __init__(self, serializer):
