@@ -75,9 +75,6 @@ class OrganizationNotificationList(generics.ListAPIView):
         organization_id = self.kwargs.get("organization_id")
         organization = self.get_organization(organization_id)
 
-        if self.request.user != organization:
-            raise PermissionDenied("You do not have permission to view notifications for this organization.")
-
         is_branch = self.request.user.is_branch
         is_staff = self.request.user.is_staff
         is_visitor = self.request.user.is_visitor
@@ -86,18 +83,19 @@ class OrganizationNotificationList(generics.ListAPIView):
 
         filters = Q()
         if is_branch:
-            filters |= Q(audience='branch')
-        if (is_staff and is_admin==False):
-            filters |= Q(audience='staff')
+            filters |= Q(audience='branch', organization_id=self.request.user.creator_id)
+        if is_staff and not is_admin:
+            filters |= Q(audience='staff', organization_id=self.request.user.creator_id)
         if is_visitor:
-            filters |= Q(audience='visitor')
+            filters |= Q(audience='visitor', organization_id=self.request.user.creator_id)
         if is_organization:
             filters |= Q(audience='organization')
 
         if not (is_branch or is_staff or is_visitor):
-            filters |= Q()
+            filters |= Q(audience='organization')
 
         return NotificationData.objects.filter(filters)
+
 
 
 

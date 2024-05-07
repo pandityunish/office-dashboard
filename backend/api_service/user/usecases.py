@@ -60,7 +60,7 @@ class LoginUseCase(BaseUseCase):
                     {'error': 'User is not verified by sms. Please try verifying your mobile number.'})
         if not user.is_active:
             raise ValidationError({'error': 'User is not active'})
-        if not user.password:
+        if not user.check_password(password):
             raise ValidationError({'error': 'Incorrect  password please try again.'})
 
         if user.is_organization:

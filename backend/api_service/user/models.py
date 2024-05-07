@@ -214,6 +214,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_manual_user = models.BooleanField(default=False)
     approve_visitor_before_access = models.BooleanField(default=False)
     check_in_check_out_feature = models.BooleanField(default=False)
+    creator = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users')
 
     objects = CustomUserManager()
     USERNAME_FIELD = "mobile_number"

@@ -64,6 +64,11 @@ class StaffUserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=mutable_data)
         serializer.is_valid(raise_exception=True)
 
+        try:
+            organization = CustomUser.objects.get(id=request.user.id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Organization not found."}, status=404)
+
         custom_user = CustomUser.objects.create_user(
             mobile_number=mutable_data.get('mobile_number'),
             full_name=mutable_data.get('full_name'),
@@ -73,6 +78,7 @@ class StaffUserViewSet(viewsets.ModelViewSet):
             is_staff=True,
             is_active=True,
             is_sms_verified=True,
+            creator=organization
         )
 
         self.perform_create(serializer)

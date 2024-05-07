@@ -14,26 +14,30 @@ class CreateNotificationUseCase(BaseUseCase):
             organization_id=self.instance,
             **self._data
         )
-        
+
         if self._data['audience'] == 'branch':
             devices = OrganizationFCMToken.objects.filter(
-                organization__is_branch=True
+                organization__is_branch=True,
+                organization__creator_id=self.instance.id
             ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
         elif self._data['audience'] == 'organization':
             devices = OrganizationFCMToken.objects.filter(
-                organization__is_organization=True
+                organization__is_organization=True,
+                organization__creator_id=self.instance.id
             ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
         elif self._data['audience'] == 'staff':
             devices = OrganizationFCMToken.objects.filter(
-                organization__is_staff=True, organization__is_admin=False
+                organization__is_staff=True, organization__is_admin=False,
+                organization__creator_id=self.instance.id
             ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
         elif self._data['audience'] == 'visitor':
             devices = OrganizationFCMToken.objects.filter(
-                organization__is_visitor=True
+                organization__is_visitor=True,
+                organization__creator_id=self.instance.id
             ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
         else:
             devices = OrganizationFCMToken.objects.exclude(
-                fcm_token__isnull=True
+                fcm_token__isnull=True,
             ).exclude(fcm_token__exact='')
 
         for device in devices:
