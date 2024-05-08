@@ -49,9 +49,9 @@ export default function Dash() {
   };
   const features = [
     { id: 1, name: "Visitor Check-in", icon: LiaIdCardSolid },
-    { id: 4, name: "Hotel Guest Check In", icon: MdOutlineCalendarToday },
-    { id: 2, name: "Customer Register", icon: BsPersonCheck },
-    { id: 3, name: "Meeting Appointment", icon: MdPeopleOutline },
+    { id: 2, name: "Hotel Guest Check In", icon: MdOutlineCalendarToday },
+    { id: 3, name: "Customer Register", icon: BsPersonCheck },
+    { id: 4, name: "Meeting Appointment", icon: MdPeopleOutline },
   ];
   function filterDataForCurrentWeek(data) {
     const today = new Date();
@@ -120,6 +120,8 @@ export default function Dash() {
                       onClick={() => {
                         if (item.id === 1) {
                           router.push("/manual-entry");
+                        } else if (item.id === 2) {
+                          router.push("/guest");
                         }
                       }}
                     >
@@ -140,7 +142,7 @@ export default function Dash() {
                   );
                 })}
               </div>
-              
+
               {user.is_kyc_verified === false ? <KycSection /> : <></>}
 
               <MannualEntry />

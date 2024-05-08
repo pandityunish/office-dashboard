@@ -20,7 +20,7 @@ from .models import (
     OrganizationDocument,
     OrganizationKYC,
     OrganizationSocialMediaLink,
-    OrganizationVisitHistory, OrganizationKYCDocument, OrganizationKYCSocialMediaLink,
+    OrganizationVisitHistory, OrganizationKYCDocument, OrganizationKYCSocialMediaLink,Guest
 )
 
 
@@ -841,3 +841,10 @@ class VisitorDataForPdfSerializer(serializers.ModelSerializer):
 class VisitorCountsSerializer(serializers.Serializer):
     visit_type = serializers.CharField()
     count = serializers.IntegerField()
+
+
+
+class GuestSerilizer(serializers.ModelSerializer):
+    class Meta:
+        model=Guest
+        fields='__all__'

@@ -6,7 +6,7 @@ from .views import PurposeViewSet
 
 from .views import OrganizationKYCViewSet, OrganizationContentAPIView
 
-from .views import AdsBannerListAPIView, AdsBannerDetailAPIView
+from .views import AdsBannerListAPIView, AdsBannerDetailAPIView, Guestinfo
 
 organizationkyc_list = OrganizationKYCViewSet.as_view({'get': 'list', 'post': 'create'})
 organizationkyc_detail = OrganizationKYCViewSet.as_view({'put': 'update'})
@@ -15,6 +15,7 @@ urlpatterns = [
 
     path("list/", views.OrganizationsList.as_view(), name="organization-list"),
     path("create/", views.OrganizationCreate.as_view(), name="organization-create"),
+    path("guestcreate/",views.Guestinfo.as_view(),name="guestinfo"),
 
     path("<int:pk>", views.OrganizationGet.as_view(), name="organization-create"),
     path("verify-otp/", views.OrganizationOTPVerify.as_view(), name="organization-verify"),

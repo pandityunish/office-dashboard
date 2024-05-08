@@ -7,7 +7,7 @@ from .models import (
     OrganizationDocument,
     OrganizationKYC,
     OrganizationSocialMediaLink,
-    OrganizationVisitHistory, AdsBanner,
+    OrganizationVisitHistory, AdsBanner,Guest
 )
 from common.admin import CustomModelAdmin
 
@@ -255,3 +255,9 @@ class AdsBannerAdmin(CustomModelAdmin):
         return obj.image.url if obj.image else None
 
     image_preview.short_description = 'Image Preview'
+
+
+class GuestAdmin(admin.ModelAdmin):
+   list_display = ('full_name', 'mobile_number', 'email', 'created_at')
+admin.site.register(Guest,GuestAdmin)
+

@@ -78,7 +78,16 @@ from .serializers import (
     PurposeSerializer,
     OrganizationContentSerializer,
     BranchSerializerGet,
-    OrganizationGetSerializer,
+    OrganizationGetSerializer, 
+    GuestSerilizer
+)
+from .models import (
+    OrganizationBranch,
+    OrganizationDocument,
+    OrganizationKYC,
+    OrganizationSocialMediaLink,
+    OrganizationVisitHistory, 
+    AdsBanner,
 )
 
 from .filters import OrganizationVisitHistoryFilter
@@ -1671,3 +1680,14 @@ class ListWaitingVisitorsView(generics.ListAPIView):
         return OrganizationVisitHistory.objects.filter(
             organization=self.get_object(), is_approved=False
         )
+
+
+class Guestinfo(APIView):
+    def post(self, request):
+        print(request.data)
+        serializer = GuestSerilizer(data=request.data)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

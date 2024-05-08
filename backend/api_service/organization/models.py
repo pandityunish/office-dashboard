@@ -362,3 +362,26 @@ class OrganizationFCMToken(models.Model):
 
     def __str__(self):
         return self.fcm_token
+
+
+class Guest(models.Model):
+    full_name = models.CharField(max_length=100)
+    mobile_number = models.CharField(max_length=10)
+    email = models.EmailField()
+    numAdultguest = models.IntegerField(blank=True,null=True)
+    numChildguest = models.IntegerField(blank=True,null=True)
+    numofroom = models.IntegerField(blank=True,null=True)
+    type_of_id = models.CharField(max_length=200,blank=True,null=True)
+    id_number = models.IntegerField(blank=True,null=True)
+    advancedPayment = models.IntegerField(blank=True,null=True)
+    remainingPayment = models.IntegerField(blank=True,null=True) 
+    checkout_date = models.DateField(blank=True,null=True)
+    paymentmethod = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.full_name
+
+      
+
