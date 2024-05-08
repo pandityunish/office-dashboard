@@ -37,7 +37,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.pagination import PageNumberPagination
 from drf_yasg.utils import swagger_auto_schema
 
-
 from .models import (
     OrganizationBranch,
     Device,
@@ -48,6 +47,7 @@ from .models import (
     OrganizationDocument,
     OrganizationSocialMediaLink,
     AdsBanner,
+    OrganizationFCMToken
 )
 
 from .serializers import (
@@ -91,8 +91,11 @@ from user.utils import generate_otp, send_otp_to_user
 from user.models import CustomUser
 
 from notification.serializers import NotificationSerializer
+from notification.models import NotificationData
 
 from common.permissions import IsVisitingUser
+
+import firebase_admin.messaging as messaging
 
 User = get_user_model()
 
@@ -910,38 +913,69 @@ class ApproveVisitorView(APIView):
 
     def post(self, request):
         try:
-
             is_approved = request.data.get("is_approved", None)
             visit_id = request.data.get("visit_id", None)
-            if not visit_id:
-                response_data = {"error": "visit_id is required"}
-                return Response(response_data)
 
-            if is_approved == None:
-                response_data = {"error": "is_approved is required"}
-                return Response(response_data)
+            if not visit_id:
+                return Response({"error": "visit_id is required"})
+
+            if is_approved is None:
+                return Response({"error": "is_approved is required"})
 
             visit_history = OrganizationVisitHistory.objects.filter(pk=visit_id).first()
+            if not visit_history:
+                return Response({"error": "Visit record not found"})
 
             if is_approved == False:
                 visit_history.delete()
-                response_data = {"message": "Visitor unapproved"}
-                return Response(response_data)
+                self.send_notification(
+                    visitor=visit_history.visitor,
+                    message=f"Your visit has been unapproved by {request.user.full_name}."
+                )
+
+                return Response({"message": "Visitor unapproved"})
 
             if visit_history.organization.id == request.user.id:
                 visit_history.is_approved = is_approved
                 visit_history.save()
-                response_data = {"message": "Visitor approved successfully"}
-                return Response(response_data)
+                self.send_notification(
+                    visitor=visit_history.visitor, 
+                    message=f"Your visit has been approved by {request.user.full_name}."
+                )
+                return Response({"message": "Visitor approved successfully"})
             else:
-                response_data = {
-                    "error": "You are not authorized to approve this visitor"
-                }
-                return Response(response_data)
+                return Response({"error": "You are not authorized to approve this visitor"})
 
         except Exception as e:
-            response_data = {"error": str(e)}
-            return Response(response_data)
+            return Response({"error": str(e)})
+
+    def send_notification(self, visitor, message):
+        visitor_tokens = OrganizationFCMToken.objects.filter(
+            organization=visitor,
+            organization__is_visitor=True
+        ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
+
+        notification_data = {
+            'notification_type': 'other',
+            'audience': 'visitor',
+            'title': 'Visit Status Update',
+            'message': f"{message}",
+        }
+
+        for token in visitor_tokens:
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=notification_data['title'],
+                    body=notification_data['message']
+                ),
+                token=token.fcm_token
+            )
+            
+            organization_instance = CustomUser.objects.get(pk=token.organization_id)
+            NotificationData.objects.create(
+                organization_id=organization_instance,
+                **notification_data
+            )
 
 
 class OrganizationSettingsView(generics.CreateAPIView):

@@ -132,26 +132,35 @@ export const getNewVisitor = async ({
   searchtext,
   startdate,
   enddate,
+  page = 1,
+  perPage = 10,
 }) => {
   try {
     const token = localStorage.getItem("access");
+    
     const response = await axiosInstance.get(
       `${getrecentvisitorurl}?search=${searchtext}&is_approved=True`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: {
+          date_min: startdate,
+          date_max: enddate,
+          page: page,
+          page_size: perPage,
+          search: searchtext,
+        },
       }
     );
 
-    if (response.status == 200) {
+    if (response.status === 200) {
       setvisitor(response.data);
     } else {
-      toast.error("Something went wrong")
+      toast.error("Something went wrong");
     }
-  } 
-  catch (error) {
-    toast.error("Something went wrong")
+  } catch (error) {
+    toast.error("Something went wrong");
   }
 };
 

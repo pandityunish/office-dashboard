@@ -23,6 +23,7 @@ from rest_framework import filters
 from organization.views import PageNumberPagination
 
 from common.permissions import IsVisitingUser
+from .pagination import StandardResultsSetPagination
 
 User = get_user_model()
 
@@ -33,31 +34,23 @@ class OrgVisitorListView(APIView):
     serializer_class = OrganizationVisitHistorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['is_approved']
+    pagination_class = StandardResultsSetPagination
 
     def get(self, request, format=None):
-        # Get the search query from the request's query parameters
         search_query = request.query_params.get('search', '')
-
-        # Get the is_approved value from the request's query parameters
         is_approved = request.query_params.get('is_approved', None)
 
-        date_from_param = request.query_params.get('date_from')
-        date_to_param = request.query_params.get('date_to')
-
-        # Parse date parameters if they exist
+        date_from_param = request.query_params.get('date_min')
+        date_to_param = request.query_params.get('date_max')
         date_from = parse_date(date_from_param) if date_from_param else None
         date_to = parse_date(date_to_param) if date_to_param else None
 
-        # Base queryset
         visitors_details_history = OrganizationVisitHistory.objects.filter(organization=request.user.id)
 
-        # Apply date range filtering if both date_from and date_to are provided
         if date_from and date_to:
             visitors_details_history = visitors_details_history.filter(created_at__range=[date_from, date_to])
 
-        # Start with the base queryset
         visitors_details_history = visitors_details_history.filter(
-
             Q(organization=request.user.id) &
             (Q(visitor__full_name__icontains=search_query) |
              Q(purpose__icontains=search_query) |
@@ -66,7 +59,7 @@ class OrgVisitorListView(APIView):
              Q(vehicle_number__icontains=search_query) |
              Q(visiting_from__icontains=search_query))
         )
-        # Additional filtering for is_approved if the parameter is provided
+
         if is_approved is not None:
             visitors_details_history = visitors_details_history.filter(is_approved=is_approved)
 

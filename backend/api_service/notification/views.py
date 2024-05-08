@@ -87,7 +87,7 @@ class OrganizationNotificationList(generics.ListAPIView):
         if is_staff and not is_admin:
             filters |= Q(audience='staff', organization_id=self.request.user.creator_id)
         if is_visitor:
-            filters |= Q(audience='visitor', organization_id=self.request.user.creator_id)
+            filters |= Q(audience='visitor')
         if is_organization:
             filters |= Q(audience='organization')
 
