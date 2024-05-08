@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='organizationbranch',
             name='lock_branch',
-            field=models.CharField(choices=[('Active', 'Active'), ('Inactive', 'Inactive')], default='LOCK_BRANCH_CHOICES', max_length=10),
+            field=models.CharField(choices=[('Active', 'Active'), ('Inactive', 'Inactive')], default='LOCK_BRANCH_CHOICES', max_length=100),
         ),
     ]
