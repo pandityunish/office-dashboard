@@ -1,11 +1,19 @@
-import { atom } from 'jotai'
+import { atom } from "jotai";
 
-const userDataAtom = atom({})
-const kycdataAtom = atom({})
-const unverifykycdata = atom({})
+const userDataAtom = atom({});
+const kycdataAtom = atom({});
+const unverifykycdata = atom({});
 
 const mannualdataAtom = atom({});
-const phonenumberdataAtom = atom({})
-const otpdataAtom = atom({})
+const meetingappoinmentdata = atom({});
+const phonenumberdataAtom = atom({});
+const otpdataAtom = atom({});
 
-export { userDataAtom,kycdataAtom,mannualdataAtom,phonenumberdataAtom,unverifykycdata }
+export {
+  userDataAtom,
+  kycdataAtom,
+  mannualdataAtom,
+  phonenumberdataAtom,
+  unverifykycdata,
+  meetingappoinmentdata,
+};

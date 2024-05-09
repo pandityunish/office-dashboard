@@ -47,7 +47,7 @@ from .models import (
     OrganizationDocument,
     OrganizationSocialMediaLink,
     AdsBanner,
-    OrganizationFCMToken
+    OrganizationFCMToken,
 )
 
 from .serializers import (
@@ -78,15 +78,16 @@ from .serializers import (
     PurposeSerializer,
     OrganizationContentSerializer,
     BranchSerializerGet,
-    OrganizationGetSerializer, 
-    GuestSerilizer
+    OrganizationGetSerializer,
+    GuestSerilizer,
+    MeetingSerializer,
 )
 from .models import (
     OrganizationBranch,
     OrganizationDocument,
     OrganizationKYC,
     OrganizationSocialMediaLink,
-    OrganizationVisitHistory, 
+    OrganizationVisitHistory,
     AdsBanner,
 )
 
@@ -370,7 +371,7 @@ class BranchList(APIView):
                 is_active=True,
                 is_sms_verified=True,
                 address=address,
-                creator=organization
+                creator=organization,
             )
         except IntegrityError:
             return Response(
@@ -939,7 +940,7 @@ class ApproveVisitorView(APIView):
                 visit_history.delete()
                 self.send_notification(
                     visitor=visit_history.visitor,
-                    message=f"Your visit has been unapproved by {request.user.full_name}."
+                    message=f"Your visit has been unapproved by {request.user.full_name}.",
                 )
 
                 return Response({"message": "Visitor unapproved"})
@@ -948,42 +949,45 @@ class ApproveVisitorView(APIView):
                 visit_history.is_approved = is_approved
                 visit_history.save()
                 self.send_notification(
-                    visitor=visit_history.visitor, 
-                    message=f"Your visit has been approved by {request.user.full_name}."
+                    visitor=visit_history.visitor,
+                    message=f"Your visit has been approved by {request.user.full_name}.",
                 )
                 return Response({"message": "Visitor approved successfully"})
             else:
-                return Response({"error": "You are not authorized to approve this visitor"})
+                return Response(
+                    {"error": "You are not authorized to approve this visitor"}
+                )
 
         except Exception as e:
             return Response({"error": str(e)})
 
     def send_notification(self, visitor, message):
-        visitor_tokens = OrganizationFCMToken.objects.filter(
-            organization=visitor,
-            organization__is_visitor=True
-        ).exclude(fcm_token__isnull=True).exclude(fcm_token__exact='')
+        visitor_tokens = (
+            OrganizationFCMToken.objects.filter(
+                organization=visitor, organization__is_visitor=True
+            )
+            .exclude(fcm_token__isnull=True)
+            .exclude(fcm_token__exact="")
+        )
 
         notification_data = {
-            'notification_type': 'other',
-            'audience': 'visitor',
-            'title': 'Visit Status Update',
-            'message': f"{message}",
+            "notification_type": "other",
+            "audience": "visitor",
+            "title": "Visit Status Update",
+            "message": f"{message}",
         }
 
         for token in visitor_tokens:
             message = messaging.Message(
                 notification=messaging.Notification(
-                    title=notification_data['title'],
-                    body=notification_data['message']
+                    title=notification_data["title"], body=notification_data["message"]
                 ),
-                token=token.fcm_token
+                token=token.fcm_token,
             )
-            
+
             organization_instance = CustomUser.objects.get(pk=token.organization_id)
             NotificationData.objects.create(
-                organization_id=organization_instance,
-                **notification_data
+                organization_id=organization_instance, **notification_data
             )
 
 
@@ -1384,14 +1388,14 @@ class ListOrganizationBranchView(generics.ListAPIView):
 
         if search_term:
             queryset = queryset.filter(
-                Q(name__icontains=search_term) |
-                Q(email__icontains=search_term) |
-                Q(mobile_no__icontains=search_term) |
-                Q(branch_no__icontains=search_term) |
-                Q(contact_person__icontains=search_term) |
-                Q(municipality__icontains=search_term) |
-                Q(city_village_area__icontains=search_term) |
-                Q(country__icontains=search_term)
+                Q(name__icontains=search_term)
+                | Q(email__icontains=search_term)
+                | Q(mobile_no__icontains=search_term)
+                | Q(branch_no__icontains=search_term)
+                | Q(contact_person__icontains=search_term)
+                | Q(municipality__icontains=search_term)
+                | Q(city_village_area__icontains=search_term)
+                | Q(country__icontains=search_term)
             )
 
         return queryset
@@ -1687,6 +1691,13 @@ class Guestinfo(APIView):
         print(request.data)
         serializer = GuestSerilizer(data=request.data)
         print(serializer.is_valid())
+
+
+class MeetingAppoinmentCreate(APIView):
+
+    def post(self, request):
+        serializer = MeetingSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

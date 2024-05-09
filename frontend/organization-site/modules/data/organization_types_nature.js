@@ -95,7 +95,15 @@ const organizationNatureTypes = [
   { id: 20, title: "Other", value: "other" },
 ];
 
+const meetingtypes = [
+  { id: 1, title: "In-Person", value: "In-Person" },
+  { id: 2, title: "Online", value: "Online" },
+  { id: 3, title: "Hybrid", value: "Hybrid" },
+  { id: 3, title: "Phone Conference", value: "Phone Conference" },
+];
+
 export {
+  meetingtypes,
   organizationTypes,
   organizationNatureTypes,
   notificationfilter,

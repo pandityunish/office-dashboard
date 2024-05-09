@@ -7,7 +7,10 @@ from .models import (
     OrganizationDocument,
     OrganizationKYC,
     OrganizationSocialMediaLink,
-    OrganizationVisitHistory, AdsBanner,Guest
+    OrganizationVisitHistory,
+    AdsBanner,
+    Guest,
+    Meetingappoiment,
 )
 from common.admin import CustomModelAdmin
 
@@ -60,15 +63,48 @@ from common.admin import CustomModelAdmin
 #         ),
 #     )
 
+
 class OrganizationKYCAdmin(CustomModelAdmin):
-    list_display = ["organization", "establishment_year", "vat_number", "pan_number", "registration_number", "country",
-                    "state", "district", "municipality"]
-    list_filter = ["organization", "establishment_year", "vat_number", "pan_number", "registration_number", "country",
-                   "state", "district", "municipality", "city_village_area", "ward_no", "organization_summary",
-                   "whatsapp_viber_number", "secondary_number", "telephone_number"]
-    search_fields = ["organization__organization_name", "establishment_year", "vat_number", "pan_number",
-                     "registration_number", "country", "state", "district", "municipality"]
-    ordering = ['organization']
+    list_display = [
+        "organization",
+        "establishment_year",
+        "vat_number",
+        "pan_number",
+        "registration_number",
+        "country",
+        "state",
+        "district",
+        "municipality",
+    ]
+    list_filter = [
+        "organization",
+        "establishment_year",
+        "vat_number",
+        "pan_number",
+        "registration_number",
+        "country",
+        "state",
+        "district",
+        "municipality",
+        "city_village_area",
+        "ward_no",
+        "organization_summary",
+        "whatsapp_viber_number",
+        "secondary_number",
+        "telephone_number",
+    ]
+    search_fields = [
+        "organization__organization_name",
+        "establishment_year",
+        "vat_number",
+        "pan_number",
+        "registration_number",
+        "country",
+        "state",
+        "district",
+        "municipality",
+    ]
+    ordering = ["organization"]
     list_per_page = 20
 
 
@@ -120,17 +156,51 @@ admin.site.register(OrganizationKYC, OrganizationKYCAdmin)
 
 
 class OrganizationVisitHistoryAdmin(CustomModelAdmin):
-    list_display = ["organization", "visitor", "full_name", "mobile_number", "purpose", "visiting_from", "is_approved",
-                    "visited_at", "departed_at", 'visit_type']
-    list_display_links = ('organization', 'visitor', 'full_name')
-    list_filter = ["organization", "visitor", "full_name", "mobile_number", "purpose", "have_vehicle", "vehicle_number",
-                   "is_with_team", "number_of_team", "visiting_from", "is_approved", "visited_at", "departed_at"]
+    list_display = [
+        "organization",
+        "visitor",
+        "full_name",
+        "mobile_number",
+        "purpose",
+        "visiting_from",
+        "is_approved",
+        "visited_at",
+        "departed_at",
+        "visit_type",
+    ]
+    list_display_links = ("organization", "visitor", "full_name")
+    list_filter = [
+        "organization",
+        "visitor",
+        "full_name",
+        "mobile_number",
+        "purpose",
+        "have_vehicle",
+        "vehicle_number",
+        "is_with_team",
+        "number_of_team",
+        "visiting_from",
+        "is_approved",
+        "visited_at",
+        "departed_at",
+    ]
     # search_fields = ["organization__organization_name", "visitor", "full_name", "mobile_number", "purpose", "have_vehicle", "vehicle_number", "is_with_team", "number_of_team", "visiting_from", "is_approved", "visited_at", "departed_at"]
     # visitor removed from serach field don't where it's pointing
-    search_fields = ["organization__organization_name", "full_name", "mobile_number", "purpose", "have_vehicle",
-                     "vehicle_number", "is_with_team", "number_of_team", "visiting_from", "is_approved", "visited_at",
-                     "departed_at"]
-    ordering = ['organization']
+    search_fields = [
+        "organization__organization_name",
+        "full_name",
+        "mobile_number",
+        "purpose",
+        "have_vehicle",
+        "vehicle_number",
+        "is_with_team",
+        "number_of_team",
+        "visiting_from",
+        "is_approved",
+        "visited_at",
+        "departed_at",
+    ]
+    ordering = ["organization"]
     list_per_page = 20
 
 
@@ -174,23 +244,44 @@ admin.site.register(OrganizationVisitHistory, OrganizationVisitHistoryAdmin)
 
 
 class OrganizationBranchAdmin(CustomModelAdmin):
-    list_display = ["organization", "name", "country", "state", "district", "municipality", "city_village_area",
-                    "ward_no", "qr_image_preview"]
-    list_filter = ["organization", "name", "country", "state", "district", "municipality", "city_village_area",
-                   "ward_no", "employee_size"]
-    search_fields = ['organization__organization_name', 'name']
-    ordering = ['organization']
+    list_display = [
+        "organization",
+        "name",
+        "country",
+        "state",
+        "district",
+        "municipality",
+        "city_village_area",
+        "ward_no",
+        "qr_image_preview",
+    ]
+    list_filter = [
+        "organization",
+        "name",
+        "country",
+        "state",
+        "district",
+        "municipality",
+        "city_village_area",
+        "ward_no",
+        "employee_size",
+    ]
+    search_fields = ["organization__organization_name", "name"]
+    ordering = ["organization"]
     list_per_page = 20
-    readonly_fields = ['qr_image']
+    readonly_fields = ["qr_image"]
 
     def qr_image_preview(self, obj):
         if obj.qr_image:
             absolute_url = f"{settings.MEDIA_URL}{obj.qr_image.name}"
-            return format_html('<img src="{}" style="max-width: 130px; max-height: 130px;" />', absolute_url)
+            return format_html(
+                '<img src="{}" style="max-width: 130px; max-height: 130px;" />',
+                absolute_url,
+            )
         else:
-            return ''
+            return ""
 
-    qr_image_preview.short_description = 'QR Code Image'
+    qr_image_preview.short_description = "QR Code Image"
 
 
 admin.site.register(OrganizationBranch, OrganizationBranchAdmin)
@@ -221,10 +312,10 @@ admin.site.register(OrganizationBranch, OrganizationBranchAdmin)
 
 
 class OrganizationDocumentAdmin(CustomModelAdmin):
-    list_display = ['organization', 'name', 'file']
-    list_filter = ['organization', 'name', 'file']
-    search_fields = ['organization__organization_name', 'name', 'file']
-    ordering = ['name']
+    list_display = ["organization", "name", "file"]
+    list_filter = ["organization", "name", "file"]
+    search_fields = ["organization__organization_name", "name", "file"]
+    ordering = ["name"]
     list_per_page = 20
 
 
@@ -247,17 +338,26 @@ class PurposeAdmin(CustomModelAdmin):
 
 @admin.register(AdsBanner)
 class AdsBannerAdmin(CustomModelAdmin):
-    list_display = ('title', 'image_preview', 'link_url', 'created_at')
-    search_fields = ('title',)
-    readonly_fields = ('image_preview',)
+    list_display = ("title", "image_preview", "link_url", "created_at")
+    search_fields = ("title",)
+    readonly_fields = ("image_preview",)
 
     def image_preview(self, obj):
         return obj.image.url if obj.image else None
 
-    image_preview.short_description = 'Image Preview'
+    image_preview.short_description = "Image Preview"
 
 
 class GuestAdmin(admin.ModelAdmin):
-   list_display = ('full_name', 'mobile_number', 'email', 'created_at')
-admin.site.register(Guest,GuestAdmin)
+    list_display = ("full_name", "mobile_number", "email", "created_at")
 
+
+admin.site.register(Guest, GuestAdmin)
+
+
+class MeetingAppoiment(admin.ModelAdmin):
+    list_display = ("full_name", "location", "meeting_type")
+    search_fields = ("full_name", "location", "meeting_type")
+
+
+admin.site.register(Meetingappoiment, MeetingAppoiment)

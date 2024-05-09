@@ -3,7 +3,11 @@ import uuid
 import qrcode
 from io import BytesIO
 
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import (
+    BaseUserManager,
+    AbstractBaseUser,
+    PermissionsMixin,
+)
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -38,9 +42,7 @@ class OrganizationKYCDocument(BaseModel):
     name = models.CharField(max_length=100)
     file = models.FileField(
         upload_to="organization_kyc/documents/%Y/%m/%d/",
-        validators=[
-            validate_file_size
-        ]
+        validators=[validate_file_size],
     )
 
     def __str__(self):
@@ -48,7 +50,9 @@ class OrganizationKYCDocument(BaseModel):
 
 
 class OrganizationKYC(BaseModel):
-    organization = models.OneToOneField(User, unique=True, on_delete=models.SET_NULL, null=True, blank=True)
+    organization = models.OneToOneField(
+        User, unique=True, on_delete=models.SET_NULL, null=True, blank=True
+    )
     establishment_year = models.PositiveIntegerField(blank=True, null=True)
     vat_number = models.CharField(max_length=50, blank=True, null=True)
     pan_number = models.CharField(max_length=50, blank=True, null=True)
@@ -66,19 +70,23 @@ class OrganizationKYC(BaseModel):
     telephone_number = models.CharField(max_length=200, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     logo = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
-    registration_certificate = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
-    PAN_VAT_certificate = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
+    registration_certificate = models.ImageField(
+        upload_to="logo/%Y/%m/%d/", blank=True, null=True
+    )
+    PAN_VAT_certificate = models.ImageField(
+        upload_to="logo/%Y/%m/%d/", blank=True, null=True
+    )
     licenses = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
     citizenship = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
     passport = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
-    driving_license = models.ImageField(upload_to="logo/%Y/%m/%d/", blank=True, null=True)
+    driving_license = models.ImageField(
+        upload_to="logo/%Y/%m/%d/", blank=True, null=True
+    )
     social_media_links = models.ManyToManyField(to=OrganizationKYCSocialMediaLink)
     documents = models.ManyToManyField(to=OrganizationKYCDocument)
 
     status = models.CharField(
-        choices=StatusChoices.choices,
-        max_length=200,
-        default=StatusChoices.PENDING
+        choices=StatusChoices.choices, max_length=200, default=StatusChoices.PENDING
     )
 
     def __str__(self):
@@ -109,16 +117,27 @@ TYPE_OF_ID = [
 
 
 class OrganizationVisitHistory(BaseModel):
-    MANUAL = 'Manual'
-    SCAN = 'Scan'
+    MANUAL = "Manual"
+    SCAN = "Scan"
 
     VISIT_CHOICES = [
-        (MANUAL, 'Manual'),
-        (SCAN, 'Scan'),
+        (MANUAL, "Manual"),
+        (SCAN, "Scan"),
     ]
-    organization = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
-                                     related_name="visiting_organization")
-    visitor = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="visited_by", null=True, blank=True)
+    organization = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="visiting_organization",
+    )
+    visitor = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="visited_by",
+        null=True,
+        blank=True,
+    )
     full_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=300, blank=True, null=True)
     mobile_number = models.CharField(max_length=50, blank=True, null=True)
@@ -133,13 +152,18 @@ class OrganizationVisitHistory(BaseModel):
     departed_at = models.DateTimeField(null=True, blank=True)
     photo = models.ImageField(upload_to="visitors/%Y/%m/%d/", blank=True, null=True)
     qr = models.ImageField(upload_to="qr/%Y/", blank=True, null=True)
-    type_of_id = models.CharField(max_length=200, choices=TYPE_OF_ID, blank=True, null=True, )
-    id_number = models.CharField(max_length=200, blank=True, null=True, )
-    visit_type = models.CharField(
-        max_length=10,
-        choices=VISIT_CHOICES,
-        null=True
+    type_of_id = models.CharField(
+        max_length=200,
+        choices=TYPE_OF_ID,
+        blank=True,
+        null=True,
     )
+    id_number = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+    )
+    visit_type = models.CharField(max_length=10, choices=VISIT_CHOICES, null=True)
 
     remarks = models.TextField(blank=True, null=True)
 
@@ -154,14 +178,12 @@ class OrganizationVisitHistory(BaseModel):
         if not self.organization.is_organization:
             raise ValidationError(
                 {
-                    'organization': 'organization is not an organization i.e is_organization is not set to true.'
+                    "organization": "organization is not an organization i.e is_organization is not set to true."
                 }
             )
         if not self.visitor.is_visitor:
             raise ValidationError(
-                {
-                    'visitor': 'visitor is not visitor i.e is_visitor is not set to true.'
-                }
+                {"visitor": "visitor is not visitor i.e is_visitor is not set to true."}
             )
 
 
@@ -185,7 +207,7 @@ class BranchUserManager(BaseUserManager):
 
     def create_user(self, email, password=None, organization=None, **extra_fields):
         if not email:
-            raise ValueError('The Email field must be set')
+            raise ValueError("The Email field must be set")
         email = self.normalize_email(email)
         user = self.model(email=email, organization=organization, **extra_fields)
         user.set_password(password)
@@ -193,14 +215,19 @@ class BranchUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, organization=None, **extra_fields):
-        extra_fields.setdefault('is_branch', True)
+        extra_fields.setdefault("is_branch", True)
 
         return self.create_user(email, password, organization, **extra_fields)
 
+
 class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True, default='example@example.com')
-    password = models.CharField(max_length=128, default=make_password('default_password'))
-    organization = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="org_roles", null=True)
+    email = models.EmailField(unique=True, default="example@example.com")
+    password = models.CharField(
+        max_length=128, default=make_password("default_password")
+    )
+    organization = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="org_roles", null=True
+    )
     name = models.CharField(max_length=200, null=True, blank=True)
     branch_no = models.CharField(max_length=10, null=True, blank=True)
     contact_person = models.CharField(max_length=200, null=True, blank=True)
@@ -212,14 +239,10 @@ class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
     city_village_area = models.CharField(max_length=100, null=True, blank=True)
     ward_no = models.CharField(max_length=10, null=True, blank=True)
     employee_size = models.CharField(max_length=200, null=True, blank=True)
-    qr_image = models.ImageField(
-        upload_to="branch_qr/%Y/",
-        blank=True,
-        null=True
-    )
+    qr_image = models.ImageField(upload_to="branch_qr/%Y/", blank=True, null=True)
     LOCK_BRANCH_CHOICES = [
-        ("Active", 'Active'),
-        ("Inactive", 'Inactive'),
+        ("Active", "Active"),
+        ("Inactive", "Inactive"),
     ]
 
     lock_branch = models.CharField(
@@ -230,18 +253,18 @@ class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
 
     objects = BranchUserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['organization', 'password']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["organization", "password"]
 
     groups = models.ManyToManyField(
-        'auth.Group',
+        "auth.Group",
         blank=True,
         related_name="organization_branch_groups",
         related_query_name="group",
     )
 
     user_permissions = models.ManyToManyField(
-        'auth.Permission',
+        "auth.Permission",
         blank=True,
         related_name="organization_branch_permissions",
         related_query_name="user_permission",
@@ -286,7 +309,7 @@ class OrganizationSocialMediaLink(models.Model):
 
 
 def upload_to_organization_document(instance, filename):
-    extension = filename.split('.')[-1]
+    extension = filename.split(".")[-1]
     unique_filename = f"{uuid.uuid4()}.{extension}"
     return f"documents/{unique_filename}"
 
@@ -306,14 +329,18 @@ class OrganizationDocument(models.Model):
 
 class Device(models.Model):
     DEVICE_TYPES = (
-        ('android', 'Android'),
-        ('computer', 'Computer'),
-        ('other', 'Other'),
+        ("android", "Android"),
+        ("computer", "Computer"),
+        ("other", "Other"),
     )
 
     name_of_device = models.CharField(max_length=255, null=True, blank=True)
-    device_type = models.CharField(max_length=200, choices=DEVICE_TYPES, default='other', null=True, blank=True)
-    organization = models.ForeignKey(User, related_name='device_org', on_delete=models.CASCADE, null=True, blank=True)
+    device_type = models.CharField(
+        max_length=200, choices=DEVICE_TYPES, default="other", null=True, blank=True
+    )
+    organization = models.ForeignKey(
+        User, related_name="device_org", on_delete=models.CASCADE, null=True, blank=True
+    )
     ip_address = models.CharField(max_length=200, null=True, blank=True)
     create_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -347,15 +374,22 @@ class OrganizationContent(models.Model):
 
 class AdsBanner(models.Model):
     title = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='ads_banners/')
+    image = models.ImageField(upload_to="ads_banners/")
     link_url = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
+
 class OrganizationFCMToken(models.Model):
-    organization = models.ForeignKey(User, related_name='org_fcm_token', on_delete=models.CASCADE, null=True, blank=True)
+    organization = models.ForeignKey(
+        User,
+        related_name="org_fcm_token",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     create_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     fcm_token = models.CharField(max_length=300, null=True, blank=True)
@@ -368,20 +402,31 @@ class Guest(models.Model):
     full_name = models.CharField(max_length=100)
     mobile_number = models.CharField(max_length=10)
     email = models.EmailField()
-    numAdultguest = models.IntegerField(blank=True,null=True)
-    numChildguest = models.IntegerField(blank=True,null=True)
-    numofroom = models.IntegerField(blank=True,null=True)
-    type_of_id = models.CharField(max_length=200,blank=True,null=True)
-    id_number = models.IntegerField(blank=True,null=True)
-    advancedPayment = models.IntegerField(blank=True,null=True)
-    remainingPayment = models.IntegerField(blank=True,null=True) 
-    checkout_date = models.DateField(blank=True,null=True)
+    numAdultguest = models.IntegerField(blank=True, null=True)
+    numChildguest = models.IntegerField(blank=True, null=True)
+    numofroom = models.IntegerField(blank=True, null=True)
+    type_of_id = models.CharField(max_length=200, blank=True, null=True)
+    id_number = models.IntegerField(blank=True, null=True)
+    advancedPayment = models.IntegerField(blank=True, null=True)
+    remainingPayment = models.IntegerField(blank=True, null=True)
+    checkout_date = models.DateField(blank=True, null=True)
     paymentmethod = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return self.full_name
 
-      
 
+class Meetingappoiment(models.Model):
+    full_name = models.CharField(max_length=30)
+    meeting_title = models.CharField(max_length=50)
+    number = models.CharField(max_length=20)
+    location = models.CharField(max_length=30)
+    meeting_type = models.CharField(max_length=50)
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __self__(self):
+        return self.full_name

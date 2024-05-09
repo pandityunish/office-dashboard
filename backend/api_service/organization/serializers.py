@@ -20,7 +20,11 @@ from .models import (
     OrganizationDocument,
     OrganizationKYC,
     OrganizationSocialMediaLink,
-    OrganizationVisitHistory, OrganizationKYCDocument, OrganizationKYCSocialMediaLink,Guest
+    OrganizationVisitHistory,
+    OrganizationKYCDocument,
+    OrganizationKYCSocialMediaLink,
+    Guest,
+    Meetingappoiment,
 )
 
 
@@ -51,8 +55,7 @@ class OrganizationKYCSerializer(serializers.ModelSerializer):
             "accept",
         )
         read_only_fields = (
-            ""
-            "qr",
+            "" "qr",
             "approve_visitor_before_access",
             "check_in_check_out_feature",
             "accept",
@@ -63,13 +66,13 @@ class OrganizationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         # fields="__all__"
-        exclude = ['password']
+        exclude = ["password"]
 
 
 class OrganizationNameListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('organization_name',)
+        fields = ("organization_name",)
 
 
 class OrganizationCreateSerializer(serializers.Serializer):
@@ -94,24 +97,25 @@ class OrganizationCreateSerializer(serializers.Serializer):
 
 
 class OrganizationGetSerializer(serializers.ModelSerializer):
-    logo = serializers.ImageField(source='organizationkyc.logo')
+    logo = serializers.ImageField(source="organizationkyc.logo")
 
     class Meta:
         model = CustomUser
-        fields = ["id",
-                  "mobile_number",
-                  "address",
-                  "address",
-                  "full_name",
-                  "email",
-                  "is_kyc_verified",
-                  "organization_name",
-                  "organization_type",
-                  "organization_nature",
-                  "qr",
-                  "profile_picture",
-                  "logo"
-                  ]
+        fields = [
+            "id",
+            "mobile_number",
+            "address",
+            "address",
+            "full_name",
+            "email",
+            "is_kyc_verified",
+            "organization_name",
+            "organization_type",
+            "organization_nature",
+            "qr",
+            "profile_picture",
+            "logo",
+        ]
         # fields = "__all__"
         # excludes = ['password']
 
@@ -158,15 +162,19 @@ class OrganizationVisitHistorySerializer(serializers.ModelSerializer):
 
     def get_UserOrg(self, obj):
         if obj.visitor:
-            user_fields = User.objects.filter(id=obj.visitor.id).values(
-                "full_name",
-                "address",
-                "email",
-                "organization_name",
-                "organization_type",
-                "organization_nature",
-                "qr"
-            ).first()
+            user_fields = (
+                User.objects.filter(id=obj.visitor.id)
+                .values(
+                    "full_name",
+                    "address",
+                    "email",
+                    "organization_name",
+                    "organization_type",
+                    "organization_nature",
+                    "qr",
+                )
+                .first()
+            )
             return user_fields
         return None
 
@@ -204,9 +212,19 @@ class OrganizationVisitHistorySerializerSingle(serializers.ModelSerializer):
 
     def get_UserOrg(self, obj):
         if obj.visitor:
-            user_fields = User.objects.filter(id=obj.visitor.id).values("full_name", "address", "email",
-                                                                        "organization_name", "organization_type",
-                                                                        "organization_nature", "qr").first()
+            user_fields = (
+                User.objects.filter(id=obj.visitor.id)
+                .values(
+                    "full_name",
+                    "address",
+                    "email",
+                    "organization_name",
+                    "organization_type",
+                    "organization_nature",
+                    "qr",
+                )
+                .first()
+            )
 
             # serializer = InnerUser(user_fields)
             return user_fields
@@ -215,7 +233,9 @@ class OrganizationVisitHistorySerializerSingle(serializers.ModelSerializer):
 
 
 class OrganizationVisitHistorySerializerGet(serializers.ModelSerializer):
-    organization_name = serializers.CharField(source='organization.organization_name', allow_null=True)
+    organization_name = serializers.CharField(
+        source="organization.organization_name", allow_null=True
+    )
     Organization = serializers.SerializerMethodField()
 
     visitor = serializers.SerializerMethodField()
@@ -249,28 +269,48 @@ class OrganizationVisitHistorySerializerGet(serializers.ModelSerializer):
         )
 
     def get_Organization(self, obj):
-        user_fields = User.objects.filter(id=obj.visitor.id).values("full_name", "address", "email",
-                                                                    "organization_name", "organization_type",
-                                                                    "organization_nature", "qr").first()
+        user_fields = (
+            User.objects.filter(id=obj.visitor.id)
+            .values(
+                "full_name",
+                "address",
+                "email",
+                "organization_name",
+                "organization_type",
+                "organization_nature",
+                "qr",
+            )
+            .first()
+        )
         return user_fields
 
     def get_visitor(self, obj):
-        user_fields = User.objects.filter(id=obj.visitor.id).values("full_name", "address", "email",
-                                                                    "organization_name", "organization_type",
-                                                                    "organization_nature", "qr").first()
+        user_fields = (
+            User.objects.filter(id=obj.visitor.id)
+            .values(
+                "full_name",
+                "address",
+                "email",
+                "organization_name",
+                "organization_type",
+                "organization_nature",
+                "qr",
+            )
+            .first()
+        )
         return user_fields
 
 
 class CustomUserSerializerOrgName(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('organization_name',)
+        fields = ("organization_name",)
 
 
 class CustomUserSerializerVisitorName(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('full_name',)
+        fields = ("full_name",)
 
 
 class OrganizationVisitHistorySerializerReport(serializers.ModelSerializer):
@@ -298,11 +338,11 @@ class OrganizationVisitHistorySerializerReport(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        organization_name = representation['organization']['organization_name']
-        representation['organization'] = organization_name
-        organization_name = representation['visitor']['full_name']
+        organization_name = representation["organization"]["organization_name"]
+        representation["organization"] = organization_name
+        organization_name = representation["visitor"]["full_name"]
 
-        representation['visitor'] = organization_name
+        representation["visitor"] = organization_name
         return representation
 
 
@@ -357,7 +397,7 @@ class GetNewOrganizationKYCSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrganizationKYC
-        fields = '__all__'
+        fields = "__all__"
 
     # def get_UserOrg(self, obj):
     #     user_fields = User.objects.filter(id=obj.id).values("full_name","email","organization_name","organization_type","organization_nature","qr").first()
@@ -369,7 +409,7 @@ class GetNewOrganizationKYCSerializer(serializers.ModelSerializer):
 class NewOrganizationKYCSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationKYC
-        fields = '__all__'
+        fields = "__all__"
 
 
 from .models import Device
@@ -378,7 +418,7 @@ from .models import Device
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
-        fields = '__all__'
+        fields = "__all__"
 
 
 from .models import Purpose
@@ -396,7 +436,7 @@ from .models import OrganizationContent
 class OrganizationContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationContent
-        fields = '__all__'
+        fields = "__all__"
 
 
 from .models import AdsBanner
@@ -405,7 +445,7 @@ from .models import AdsBanner
 class AdsBannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdsBanner
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ListAdsBannerSerializer(serializers.ModelSerializer):
@@ -413,7 +453,7 @@ class ListAdsBannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdsBanner
-        fields = ['id', 'title', 'image', 'image_path', 'link_url', 'created_at']
+        fields = ["id", "title", "image", "image_path", "link_url", "created_at"]
 
     def get_image_path(self, obj):
         parsed_url = urlsplit(obj.image.url)
@@ -424,62 +464,66 @@ class CreateOrganizationKYCSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationKYC
         fields = [
-            'establishment_year',
-            'vat_number',
-            'pan_number',
-            'registration_number',
-            'country',
-            'state',
-            'district',
-            'municipality',
-            'city_village_area',
-            'ward_no',
-            'contact_person_full_name',
-            'organization_summary',
-            'whatsapp_viber_number',
-            'secondary_number',
-            'telephone_number',
-            'website',
-            'logo',
-            'registration_certificate',
-            'PAN_VAT_certificate',
-            'licenses', 'citizenship', 'passport',
-            'driving_license',
-            'social_media_links',
+            "establishment_year",
+            "vat_number",
+            "pan_number",
+            "registration_number",
+            "country",
+            "state",
+            "district",
+            "municipality",
+            "city_village_area",
+            "ward_no",
+            "contact_person_full_name",
+            "organization_summary",
+            "whatsapp_viber_number",
+            "secondary_number",
+            "telephone_number",
+            "website",
+            "logo",
+            "registration_certificate",
+            "PAN_VAT_certificate",
+            "licenses",
+            "citizenship",
+            "passport",
+            "driving_license",
+            "social_media_links",
         ]
 
 
 class ListOrganizationKYCSerializer(serializers.ModelSerializer):
-    organization_id = serializers.IntegerField(source='organization.id')
+    organization_id = serializers.IntegerField(source="organization.id")
 
     class Meta:
         model = OrganizationKYC
         fields = [
-            'id',
-            'organization_id',
-            'establishment_year',
-            'vat_number',
-            'pan_number',
-            'registration_number',
-            'country',
-            'state',
-            'district',
-            'municipality',
-            'city_village_area',
-            'ward_no',
-            'contact_person_full_name',
-            'organization_summary',
-            'whatsapp_viber_number',
-            'secondary_number',
-            'telephone_number',
-            'website',
-            'logo',
-            'registration_certificate',
-            'PAN_VAT_certificate',
-            'licenses', 'citizenship', 'passport',
-            'driving_license',
-            'social_media_links',
-            'status'
+            "id",
+            "organization_id",
+            "establishment_year",
+            "vat_number",
+            "pan_number",
+            "registration_number",
+            "country",
+            "state",
+            "district",
+            "municipality",
+            "city_village_area",
+            "ward_no",
+            "contact_person_full_name",
+            "organization_summary",
+            "whatsapp_viber_number",
+            "secondary_number",
+            "telephone_number",
+            "website",
+            "logo",
+            "registration_certificate",
+            "PAN_VAT_certificate",
+            "licenses",
+            "citizenship",
+            "passport",
+            "driving_license",
+            "social_media_links",
+            "status",
         ]
 
 
@@ -487,63 +531,57 @@ class OrganizationBranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationBranch
         fields = [
-            'name',
-            'email',
-            'branch_no',
-            'contact_person',
-            'mobile_no',
-            'country',
-            'state',
-            'district',
-            'municipality',
-            'city_village_area',
-            'ward_no',
-            'employee_size',
-            'lock_branch',
+            "name",
+            "email",
+            "branch_no",
+            "contact_person",
+            "mobile_no",
+            "country",
+            "state",
+            "district",
+            "municipality",
+            "city_village_area",
+            "ward_no",
+            "employee_size",
+            "lock_branch",
         ]
 
     def validate_email(self, value):
         if not value:
-            raise ValidationError(
-                {
-                    'error': 'email  is required '
-                }
-            )
+            raise ValidationError({"error": "email  is required "})
         return value
 
     def validate_mobile_no(self, value):
         if not value.isdigit() and len(value) != 10:
             raise ValidationError(
-                {
-                    'error': 'Mobile number is required and must be 10 digit number.'
-                }
+                {"error": "Mobile number is required and must be 10 digit number."}
             )
         return value
 
 
 class ListOrganizationBranchSerializer(serializers.ModelSerializer):
-    organization_name = serializers.CharField(source='organization.organization_name')
-    organization_id = serializers.CharField(source='organization.id')
+    organization_name = serializers.CharField(source="organization.organization_name")
+    organization_id = serializers.CharField(source="organization.id")
 
     class Meta:
         model = OrganizationBranch
         fields = [
-            'id',
-            'organization_name',
-            'organization_id',
-            'name',
-            'email',
-            'branch_no',
-            'contact_person',
-            'mobile_no',
-            'country',
-            'state',
-            'district',
-            'municipality',
-            'city_village_area',
-            'ward_no',
-            'employee_size',
-            'lock_branch',
+            "id",
+            "organization_name",
+            "organization_id",
+            "name",
+            "email",
+            "branch_no",
+            "contact_person",
+            "mobile_no",
+            "country",
+            "state",
+            "district",
+            "municipality",
+            "city_village_area",
+            "ward_no",
+            "employee_size",
+            "lock_branch",
         ]
 
 
@@ -551,14 +589,14 @@ class UpdateOrganizationKYCLogoSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationKYC
         fields = [
-            'logo',
+            "logo",
         ]
 
 
 class OrganizationSocialMediaLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationKYCSocialMediaLink
-        fields = ['name', 'link']
+        fields = ["name", "link"]
 
 
 class CreateOrganizationKYCDocumentSerializer(serializers.ModelSerializer):
@@ -573,7 +611,7 @@ class CreateOrganizationKYCDocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrganizationKYCDocument
-        fields = ['name', 'file']
+        fields = ["name", "file"]
 
     def validate_file(self, value):
         return self.validate_base64_field(value)
@@ -584,7 +622,7 @@ class ListOrganizationKYCDocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrganizationKYCDocument
-        fields = ['name', 'file']
+        fields = ["name", "file"]
 
     def get_file(self, obj):
         parsed_url = urlsplit(obj.file.url)
@@ -606,16 +644,26 @@ class CreateOrganizationKycSerializer(serializers.ModelSerializer):
     establishment_year = serializers.IntegerField()
     vat_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     pan_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
-    registration_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    registration_number = serializers.CharField(
+        max_length=50, required=False, allow_blank=True
+    )
     country = serializers.CharField(max_length=100, required=False, allow_blank=True)
     state = serializers.CharField(max_length=100, required=False, allow_blank=True)
     district = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    municipality = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    city_village_area = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    municipality = serializers.CharField(
+        max_length=100, required=False, allow_blank=True
+    )
+    city_village_area = serializers.CharField(
+        max_length=100, required=False, allow_blank=True
+    )
     ward_no = serializers.IntegerField(required=False)
-    contact_person_full_name = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    contact_person_full_name = serializers.CharField(
+        max_length=20, required=False, allow_blank=True
+    )
     organization_summary = serializers.CharField(required=False, allow_blank=True)
-    whatsapp_viber_number = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    whatsapp_viber_number = serializers.CharField(
+        max_length=20, required=False, allow_blank=True
+    )
     secondary_number = serializers.CharField(max_length=20, allow_blank=True)
     telephone_number = serializers.CharField(max_length=20, allow_blank=True)
     website = serializers.URLField(required=False, allow_blank=True)
@@ -651,31 +699,31 @@ class CreateOrganizationKycSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationKYC
         fields = (
-            'establishment_year',
-            'vat_number',
-            'pan_number',
-            'registration_number',
-            'country',
-            'state',
-            'district',
-            'municipality',
-            'city_village_area',
-            'ward_no',
-            'contact_person_full_name',
-            'organization_summary',
-            'whatsapp_viber_number',
-            'secondary_number',
-            'telephone_number',
-            'website',
-            'logo',
-            'registration_certificate',
-            'PAN_VAT_certificate',
-            'licenses',
-            'citizenship',
-            'passport',
-            'driving_license',
-            'social_media_links',
-            'documents'
+            "establishment_year",
+            "vat_number",
+            "pan_number",
+            "registration_number",
+            "country",
+            "state",
+            "district",
+            "municipality",
+            "city_village_area",
+            "ward_no",
+            "contact_person_full_name",
+            "organization_summary",
+            "whatsapp_viber_number",
+            "secondary_number",
+            "telephone_number",
+            "website",
+            "logo",
+            "registration_certificate",
+            "PAN_VAT_certificate",
+            "licenses",
+            "citizenship",
+            "passport",
+            "driving_license",
+            "social_media_links",
+            "documents",
         )
 
 
@@ -693,7 +741,7 @@ class OrganizationListKYCSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrganizationKYC
-        fields = '__all__'
+        fields = "__all__"
 
     def get_logo(self, obj):
         if obj:
@@ -755,9 +803,8 @@ class ScanOrganizationByVisitorSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationVisitHistory
         fields = [
-            'address',
-            'purpose',
-
+            "address",
+            "purpose",
         ]
 
 
@@ -782,59 +829,59 @@ class VisitorDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganizationVisitHistory
         fields = [
-            'organization',
-            'visitor',
-            'full_name',
-            'email',
-            'mobile_number',
-            'purpose',
-            'have_vehicle',
-            'vehicle_number',
-            'is_with_team',
-            'number_of_team',
-            'visiting_from',
-            'is_approved',
-            'visited_at',
-            'departed_at',
-            'photo',
-            'qr',
-            'type_of_id',
-            'id_number',
-            'remarks'
+            "organization",
+            "visitor",
+            "full_name",
+            "email",
+            "mobile_number",
+            "purpose",
+            "have_vehicle",
+            "vehicle_number",
+            "is_with_team",
+            "number_of_team",
+            "visiting_from",
+            "is_approved",
+            "visited_at",
+            "departed_at",
+            "photo",
+            "qr",
+            "type_of_id",
+            "id_number",
+            "remarks",
         ]
 
 
 class VisitorDataForPdfSerializer(serializers.ModelSerializer):
-    organization_name = serializers.CharField(source='organization.full_name')
-    visited_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M')
-    departed_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M')
-    created_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M')
+    organization_name = serializers.CharField(source="organization.full_name")
+    visited_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    departed_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
 
     class Meta:
         model = OrganizationVisitHistory
         fields = [
-            'id',
-            'created_at',
-            'organization_name',
-            'visitor',
-            'full_name',
-            'email',
-            'mobile_number',
-            'purpose',
-            'have_vehicle',
-            'vehicle_number',
-            'is_with_team',
-            'number_of_team',
-            'visiting_from',
-            'is_approved',
-            'visited_at',
-            'visit_type',
-            'departed_at',
-            'photo',
-            'qr',
-            'type_of_id',
-            'id_number',
-            'remarks'
+            "id",
+            "created_at",
+            "organization_name",
+            "visitor",
+            "full_name",
+            "email",
+            "mobile_number",
+            "purpose",
+            "have_vehicle",
+            "vehicle_number",
+            "is_with_team",
+            "number_of_team",
+            "visiting_from",
+            "is_approved",
+            "visited_at",
+            "visit_type",
+            "departed_at",
+            "photo",
+            "qr",
+            "type_of_id",
+            "id_number",
+            "remarks",
         ]
 
 
@@ -843,8 +890,12 @@ class VisitorCountsSerializer(serializers.Serializer):
     count = serializers.IntegerField()
 
 
-
 class GuestSerilizer(serializers.ModelSerializer):
     class Meta:
-        model=Guest
-        fields='__all__'
+        model = Guest
+
+
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meetingappoiment
+        fields = "__all__"
