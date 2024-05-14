@@ -13,6 +13,7 @@ urlpatterns = [
     path(
         "meetingcreate/", views.MeetingAppoinmentCreate.as_view(), name="meeting-create"
     ),
+    path("customercreate/", views.Customerinfo.as_view(), name="customerinfo"),
     path("<int:pk>", views.OrganizationGet.as_view(), name="organization-create"),
     path(
         "verify-otp/", views.OrganizationOTPVerify.as_view(), name="organization-verify"

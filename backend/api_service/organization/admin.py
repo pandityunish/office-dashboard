@@ -11,6 +11,7 @@ from .models import (
     AdsBanner,
     Guest,
     Meetingappoiment,
+    CustomerRegistration
 )
 from common.admin import CustomModelAdmin
 
@@ -359,5 +360,16 @@ class MeetingAppoiment(admin.ModelAdmin):
     list_display = ("full_name", "location", "meeting_type")
     search_fields = ("full_name", "location", "meeting_type")
 
-
 admin.site.register(Meetingappoiment, MeetingAppoiment)
+
+
+class CustomerRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'mobile_number', 'company_name', 'created_at')
+    search_fields = ('full_name', 'email', 'mobile_number')
+    list_filter = ('company_name', 'country', 'created_at')
+    ordering = ('-created_at',) 
+    date_hierarchy = 'created_at'  
+    fields = ('full_name', 'mobile_number', 'email', 'type_of_id', 'id_number', 'company_name', 'country', 'state', 'city', 'additional_requirements', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
+
+admin.site.register(CustomerRegistration, CustomerRegistrationAdmin)

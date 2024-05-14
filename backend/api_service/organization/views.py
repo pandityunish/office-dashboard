@@ -81,6 +81,7 @@ from .serializers import (
     OrganizationGetSerializer,
     GuestSerilizer,
     MeetingSerializer,
+    CustomerSerilizer
 )
 from .models import (
     OrganizationBranch,
@@ -1698,7 +1699,13 @@ class MeetingAppoinmentCreate(APIView):
     def post(self, request):
         serializer = MeetingSerializer(data=request.data)
         print(request.data)
+    
+
+class Customerinfo(APIView):
+    def post(self, request):
+        serializer = CustomerSerilizer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

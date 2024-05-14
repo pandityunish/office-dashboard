@@ -122,6 +122,8 @@ export default function Dash() {
                           router.push("/manual-entry");
                         } else if (item.id === 2) {
                           router.push("/guest");
+                        } else if (item.id === 3) {
+                          router.push("/customer-registration");
                         } else if (item.id === 4) {
                           router.push("/meeting");
                         }
