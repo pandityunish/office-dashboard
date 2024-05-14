@@ -24,7 +24,7 @@ from organization.views import PageNumberPagination
 
 from common.permissions import IsVisitingUser
 from .pagination import StandardResultsSetPagination
-
+from datetime import timedelta
 User = get_user_model()
 
 
@@ -46,8 +46,8 @@ class OrgVisitorListView(APIView):
         date_to = parse_date(date_to_param) if date_to_param else None
 
         visitors_details_history = OrganizationVisitHistory.objects.filter(organization=request.user.id)
-
         if date_from and date_to:
+            date_to = date_to + timedelta(days=1) - timedelta(microseconds=1)
             visitors_details_history = visitors_details_history.filter(created_at__range=[date_from, date_to])
 
         visitors_details_history = visitors_details_history.filter(

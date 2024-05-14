@@ -430,3 +430,21 @@ class Meetingappoiment(models.Model):
 
     def __self__(self):
         return self.full_name
+
+
+class CustomerRegistration(models.Model):
+    full_name = models.CharField(max_length=150)
+    mobile_number = models.CharField(max_length=15)
+    email = models.EmailField()
+    type_of_id = models.CharField(max_length=200)
+    id_number = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=100)
+    country = models.CharField(max_length=100, default=None)
+    state = models.CharField(max_length=100, default=None)
+    city = models.CharField(max_length=100, default=None)
+    additional_requirements = models.TextField(default=None, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.full_name

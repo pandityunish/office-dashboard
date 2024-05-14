@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 const VisitForm = () => {
   const [value, setValue] = useAtom(mannualdataAtom);
   const [changeValue, setChangeValue] = useState("Yes");
+  const [selectedPurpose, setSelectedPurpose] = useState('');
 
   const router = useRouter();
 
@@ -416,10 +417,10 @@ const VisitForm = () => {
               <></>
             ) : (
               <>
-                <div className="w-[600px] ">
+                <div className="w-[600px]">
                   <label
                     htmlFor="organization_name"
-                    className="text-sm font-semibold text-[#333333] "
+                    className="text-sm font-semibold text-[#333333]"
                   >
                     Purpose
                   </label>
@@ -427,34 +428,18 @@ const VisitForm = () => {
                     <select
                       className="block w-full p-4 text-[#A3A3A3] pl-12 placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 appearance-none"
                       {...register("purpose", { required: true })}
+                      onChange={(e) => setSelectedPurpose(e.target.value)}
                     >
-                      <option
-                        value=""
-                        className="font-semibold text-[#333333] "
-                      >
-                        Select purpose
-                      </option>
+                      <option value="">Select purpose</option>
                       {purpose?.map((org) => (
-                        <option
-                          key={org.id}
-                          value={org.value}
-                          className="text-sm  font-semibold text-[#333333]"
-                        >
+                        <option key={org.id} value={org.value}>
                           {org.title}
                         </option>
                       ))}
                     </select>
-                    <div
-                      className={`pointer-events-none absolute inset-y-0 right-0 flex ${
-                        errors.purpose ? "-top-6" : ""
-                      } items-center px-2 text-gray-700`}
-                    >
-                      <MdArrowDropDown />
-                    </div>
+                    <MdArrowDropDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-2xl text-gray-700" />
                     <FiMessageSquare
-                      className={`absolute text-2xl left-4 ${
-                        errors.purpose ? "top-1/3" : "top-1/2"
-                      }  transform -translate-y-1/2 text-gray-400`}
+                      className={`absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl text-gray-400`}
                     />
 
                     {errors.purpose && (
@@ -464,6 +449,32 @@ const VisitForm = () => {
                     )}
                   </div>
                 </div>
+
+                {selectedPurpose === "Others" && (
+                  <div className="w-[600px]">
+                    <label
+                      htmlFor="purpose"
+                      className="text-sm font-semibold text-[#333333]"
+                    >
+                      Other Purpose
+                    </label>
+                    <div className="mt-[8px] relative">
+                      <IoPersonOutline className="absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl text-gray-400" />
+
+                      <input
+                        type="text"
+                        placeholder="Please write a Purpose of Visit"
+                        className="block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600"
+                        {...register("purpose", { required: true })}
+                      />
+                      {errors.purpose && (
+                        <span className="text-red-500">
+                          Purpose is required
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>

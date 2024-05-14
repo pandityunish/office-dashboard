@@ -75,7 +75,6 @@ export default function Visitorlist() {
   };
 
   const handleDateChange = (dateType, date) => {
-    console.log('################################', date, dateType)
     if (dateType === "start") {
       setSelectedDate(date);
     } else {
@@ -86,6 +85,12 @@ export default function Visitorlist() {
   const handleFilterToggle = () => {
     setIsFilter(!isFilter);
   };
+
+  const handleClearButton = () => {
+    setSelectedDate("");
+    setEndSelectedDate("");
+    fetchVisitors()
+  }
 
   const handleDeleteVisitor = () => {
     deletevisitor({ toast: toast, id: visitorId }).finally(() => {
@@ -228,7 +233,7 @@ export default function Visitorlist() {
                 </div>
               </div>
             </div>
-            <div className="w-[149px] h-[56px] mt-7 border-black font-semibold font-inter text-lg  rounded-xl border-2 flex items-center justify-center">
+            <div className="w-[149px] h-[56px] mt-7 border-black font-semibold font-inter text-lg  rounded-xl border-2 flex items-center justify-center" onClick={handleClearButton}>
               Clear
             </div>
             <div
