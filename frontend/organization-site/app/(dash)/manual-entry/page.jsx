@@ -323,7 +323,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Enter ID Number"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
@@ -463,7 +463,7 @@ const VisitForm = () => {
 
                       <input
                         type="text"
-                        placeholder="Please write a Purpose of Visit"
+                        placeholder="Purpose of Visit"
                         className="block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600"
                         {...register("purpose", { required: true })}
                       />

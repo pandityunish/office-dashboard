@@ -27,19 +27,10 @@ const countries = [
   { id: 2, title: "India", value: "india" },
 ];
 const purpose = [
-  { id: 1, title: "Meeting ", value: "Meeting " },
-  { id: 2, title: "Marketing ", value: "Marketing " },
+  { id: 1, title: "Administrative Work", value: "Administrative Work" },
+  { id: 2, title: "Meeting ", value: "Meeting" },
   { id: 3, title: "Interview", value: "Interview" },
-  { id: 4, title: "Banking Transection", value: "Banking Transection" },
-  { id: 5, title: "Insurence service", value: "Insurence service" },
-  { id: 6, title: "Hotel Guest Checking", value: "Hotel Guest Checking" },
-  { id: 7, title: "Court Case", value: "Court Case" },
-  { id: 8, title: "Government Service", value: "Government Service" },
-  { id: 9, title: "Border Cross", value: "Border Cross" },
-  { id: 10, title: "Custom Check Pass", value: "Custom Check Pass" },
-  { id: 11, title: "Traffic Check Pass", value: "Traffic Check Pass" },
-  { id: 12, title: "Customer Service", value: "Customer Service" },
-  { id: 13, title: "Others", value: "Others" },
+  { id: 4, title: "Others", value: "Others" },
 ];
 const purpose2 = [
   { id: 1, title: "Total Visitor ", value: "Total Visitor" },
