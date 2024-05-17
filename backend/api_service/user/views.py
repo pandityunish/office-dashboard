@@ -647,15 +647,10 @@ class LogoutAPIView(APIView):
 
         if not fcm_token:
             return Response({'error': 'FCM token is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
+        
+        if fcm_token:
             fcm_tokens = OrganizationFCMToken.objects.filter(fcm_token=fcm_token, organization=request.user)
-            
             if fcm_tokens.exists():
                 fcm_tokens.delete()
-                return Response({'message': 'FCM tokens deleted successfully.'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'FCM token not found for the authenticated user.'}, status=status.HTTP_404_NOT_FOUND)
-        
-        except OrganizationFCMToken.DoesNotExist:
-            return Response({'error': 'FCM token not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
