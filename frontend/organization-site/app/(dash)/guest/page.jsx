@@ -163,7 +163,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input visiting from"
+                    placeholder="Input Number of Adult Guest"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.visiting ? "border-red-500" : ""
                     }`}
@@ -192,7 +192,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input Number of Child Guest"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.numvisitor ? "border-red-500" : ""
                     }`}
@@ -224,7 +224,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input Number of Rooms"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
@@ -297,7 +297,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input ID Number"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
@@ -324,7 +324,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input Advance Payment"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
@@ -356,7 +356,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input Remaining Payment"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
@@ -385,7 +385,7 @@ const VisitForm = () => {
 
                   <input
                     type="text"
-                    placeholder="Input number of visitor"
+                    placeholder="Input Payment Method"
                     className={`block w-full p-4 pl-12 text-black placeholder-[#A3A3A3] placeholder:font-normal transition-all duration-200 border border-greyneutral rounded-[10px] bg-white focus:outline-none focus:border-blue-600 focus:bg-white caret-blue-600 ${
                       errors.id_number ? "border-red-500" : ""
                     }`}
