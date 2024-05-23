@@ -56,6 +56,18 @@ const menuList = [
     path: "/customer-list",
     icon: MdDirectionsRun,
   },
+  {
+    id: 7,
+    menu: "Guests",
+    path: "/guest-list",
+    icon: MdAutoAwesome,
+  },
+  {
+    id: 8,
+    menu: "Meeting Appointments",
+    path: "/meeting-list",
+    icon: MdAccessTime,
+  },
 ];
 
 const LeftSidebar = () => {
