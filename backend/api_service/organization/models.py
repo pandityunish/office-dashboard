@@ -443,6 +443,13 @@ class CustomerRegistration(models.Model):
     state = models.CharField(max_length=100, default=None)
     city = models.CharField(max_length=100, default=None)
     additional_requirements = models.TextField(default=None, blank=True)
+    organization = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="customer_registrations",
+        default=None,
+        null=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

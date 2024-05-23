@@ -81,7 +81,7 @@ from .serializers import (
     OrganizationGetSerializer,
     GuestSerilizer,
     MeetingSerializer,
-    CustomerSerilizer
+    CustomerSerilizer,
 )
 from .models import (
     OrganizationBranch,
@@ -90,6 +90,9 @@ from .models import (
     OrganizationSocialMediaLink,
     OrganizationVisitHistory,
     AdsBanner,
+    CustomerRegistration,
+    Guest,
+    Meetingappoiment,
 )
 
 from .filters import OrganizationVisitHistoryFilter
@@ -1702,10 +1705,76 @@ class MeetingAppoinmentCreate(APIView):
     
 
 class Customerinfo(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
+        organization = request.user
         serializer = CustomerSerilizer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(organization=organization)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class CustomerInfoListView(APIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+    serializer_class = CustomerSerilizer
+
+    def get(self, request):
+        search_query = request.query_params.get("search", "")
+        organization_id = request.user.id
+
+        customer_info = CustomerRegistration.objects.filter(
+            organization_id=organization_id
+        )
+
+        if search_query:
+            customer_info = customer_info.filter(
+                Q(full_name__icontains=search_query)
+                | Q(mobile_number__icontains=search_query)
+                | Q(country__icontains=search_query)
+                | Q(state__icontains=search_query)
+                | Q(city__icontains=search_query)
+                | Q(company_name__icontains=search_query)
+            )
+
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(customer_info, request)
+        serializer = self.serializer_class(result_page, many=True)
+
+        response_data = {
+            "organization": organization_id,
+            "customer_info": serializer.data,
+        }
+
+        return paginator.get_paginated_response(response_data)
+
+
+class CustomerDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, customer_id):
+        try:
+            customer = CustomerRegistration.objects.get(id=customer_id)
+
+            if customer.organization_id != request.user.id:
+                return Response(
+                    {"error": "You don't have permission to delete this customer."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            customer.delete()
+
+            return Response(
+                {"message": "Customer deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except CustomerRegistration.DoesNotExist:
+            return Response(
+                {"error": "Customer not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

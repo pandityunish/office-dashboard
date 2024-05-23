@@ -14,6 +14,16 @@ urlpatterns = [
         "meetingcreate/", views.MeetingAppoinmentCreate.as_view(), name="meeting-create"
     ),
     path("customercreate/", views.Customerinfo.as_view(), name="customerinfo"),
+    path(
+        "customer-info/",
+        views.CustomerInfoListView.as_view(),
+        name="customer_info_list",
+    ),
+    path(
+        "customer-info/<int:customer_id>/",
+        views.CustomerDeleteView.as_view(),
+        name="customer-delete",
+    ),
     path("<int:pk>", views.OrganizationGet.as_view(), name="organization-create"),
     path(
         "verify-otp/", views.OrganizationOTPVerify.as_view(), name="organization-verify"
