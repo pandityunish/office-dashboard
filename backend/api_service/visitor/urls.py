@@ -24,5 +24,6 @@ urlpatterns = [
         views.ListVisitorsMessageAPI.as_view(),
         name='list_visitors_messages'
     ),
-
+    path("download-csv", views.DownloadVisitorCSVView.as_view(), name="visitor-list-csv", ),
+    path("download-pdf", views.DownloadVisitorPDFView.as_view(), name="visitor-list-pdf", ),
 ]

@@ -4,6 +4,7 @@ import time
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.dateparse import parse_date
+from django.http import HttpResponse
 from organization.serializers import OrganizationVisitHistorySerializerGet
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
@@ -12,12 +13,19 @@ from rest_framework.views import APIView
 
 from .filtersets import OrganizationVisitHistoryFilter
 from .models import VisitorKYC, VisitorsMessage
-from .serializers import VisitorKYCSerializer, CreateVisitorsMessageSerializer, ListVisitorsMessageSerializer
+from .serializers import (
+    VisitorKYCSerializer,
+    CreateVisitorsMessageSerializer,
+    ListVisitorsMessageSerializer,
+)
 from django_filters import rest_framework as django_filters
 
 from organization.models import OrganizationVisitHistory
 
-from organization.serializers import OrganizationVisitHistorySerializer, OrganizationVisitHistorySerializerSingle
+from organization.serializers import (
+    OrganizationVisitHistorySerializer,
+    OrganizationVisitHistorySerializerSingle,
+)
 from rest_framework import filters
 
 from organization.views import PageNumberPagination
@@ -25,6 +33,8 @@ from organization.views import PageNumberPagination
 from common.permissions import IsVisitingUser
 from .pagination import StandardResultsSetPagination
 from datetime import timedelta
+from xhtml2pdf import pisa
+
 User = get_user_model()
 
 
@@ -33,35 +43,43 @@ class OrgVisitorListView(APIView):
     pagination_class = PageNumberPagination
     serializer_class = OrganizationVisitHistorySerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['is_approved']
+    search_fields = ["is_approved"]
     pagination_class = StandardResultsSetPagination
 
     def get(self, request, format=None):
-        search_query = request.query_params.get('search', '')
-        is_approved = request.query_params.get('is_approved', None)
+        search_query = request.query_params.get("search", "")
+        is_approved = request.query_params.get("is_approved", None)
 
-        date_from_param = request.query_params.get('date_min')
-        date_to_param = request.query_params.get('date_max')
+        date_from_param = request.query_params.get("date_min")
+        date_to_param = request.query_params.get("date_max")
         date_from = parse_date(date_from_param) if date_from_param else None
         date_to = parse_date(date_to_param) if date_to_param else None
 
-        visitors_details_history = OrganizationVisitHistory.objects.filter(organization=request.user.id)
+        visitors_details_history = OrganizationVisitHistory.objects.filter(
+            organization=request.user.id
+        )
         if date_from and date_to:
             date_to = date_to + timedelta(days=1) - timedelta(microseconds=1)
-            visitors_details_history = visitors_details_history.filter(created_at__range=[date_from, date_to])
+            visitors_details_history = visitors_details_history.filter(
+                created_at__range=[date_from, date_to]
+            )
 
         visitors_details_history = visitors_details_history.filter(
-            Q(organization=request.user.id) &
-            (Q(visitor__full_name__icontains=search_query) |
-             Q(purpose__icontains=search_query) |
-             Q(full_name__icontains=search_query) |
-             Q(mobile_number__icontains=search_query) |
-             Q(vehicle_number__icontains=search_query) |
-             Q(visiting_from__icontains=search_query))
+            Q(organization=request.user.id)
+            & (
+                Q(visitor__full_name__icontains=search_query)
+                | Q(purpose__icontains=search_query)
+                | Q(full_name__icontains=search_query)
+                | Q(mobile_number__icontains=search_query)
+                | Q(vehicle_number__icontains=search_query)
+                | Q(visiting_from__icontains=search_query)
+            )
         )
 
         if is_approved is not None:
-            visitors_details_history = visitors_details_history.filter(is_approved=is_approved)
+            visitors_details_history = visitors_details_history.filter(
+                is_approved=is_approved
+            )
 
         visitors_details_history = visitors_details_history.all()
 
@@ -95,14 +113,18 @@ class ReportOrgVisitorListView(APIView):
     serializer_class = OrganizationVisitHistorySerializerGet
 
     def get(self, request, format=None):
-        visitors_details_history = OrganizationVisitHistory.objects.filter(Q(organization=request.user.id)).all()
+        visitors_details_history = OrganizationVisitHistory.objects.filter(
+            Q(organization=request.user.id)
+        ).all()
 
-        export_csv = request.query_params.get('export_csv', False)
-        export_pdf = request.query_params.get('export_pdf', False)
+        export_csv = request.query_params.get("export_csv", False)
+        export_pdf = request.query_params.get("export_pdf", False)
 
         if export_csv:
-            file_path = self.generate_csv_file(visitors_details_history, request.user.organization_name)
-            return Response({'csv_file_link': file_path})
+            file_path = self.generate_csv_file(
+                visitors_details_history, request.user.organization_name
+            )
+            return Response({"csv_file_link": file_path})
         elif export_pdf:
             import pandas as pd
             from reportlab.lib.pagesizes import letter, landscape
@@ -111,15 +133,17 @@ class ReportOrgVisitorListView(APIView):
             import os
 
             # Your existing code to generate CSV file
-            file_path = self.generate_csv_file(visitors_details_history, request.user.organization_name)
+            file_path = self.generate_csv_file(
+                visitors_details_history, request.user.organization_name
+            )
             csv_file_path = file_path
 
             # Extract file name without extension
             csv_file_name = os.path.splitext(os.path.basename(csv_file_path))[0]
 
             # PDF file path
-            pdf_directory = 'media/files/pdf'
-            pdf_file_path = os.path.join(pdf_directory, f'{csv_file_name}.pdf')
+            pdf_directory = "media/files/pdf"
+            pdf_file_path = os.path.join(pdf_directory, f"{csv_file_name}.pdf")
 
             # Read CSV file into a pandas DataFrame
             df = pd.read_csv(csv_file_path)
@@ -132,7 +156,7 @@ class ReportOrgVisitorListView(APIView):
                 leftMargin=1,  # Adjusted left margin
                 topMargin=30,
                 bottomMargin=30,
-                allowSplitting=1
+                allowSplitting=1,
             )
 
             # Add content to the PDF
@@ -140,7 +164,9 @@ class ReportOrgVisitorListView(APIView):
             data = [header] + [list(row) for _, row in df.iterrows()]
 
             # Calculate maximum column widths based on content
-            max_col_widths = [max([len(str(val)) for val in col]) * 8 for col in zip(*data)]
+            max_col_widths = [
+                max([len(str(val)) for val in col]) * 8 for col in zip(*data)
+            ]
 
             # Calculate the total table width
             table_width = sum(max_col_widths)
@@ -153,15 +179,17 @@ class ReportOrgVisitorListView(APIView):
 
             # Create a table with adjusted column widths
             table = Table(data, colWidths=max_col_widths, repeatRows=1)
-            style = TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black)
-            ])
+            style = TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
 
             # Apply the table style
             table.setStyle(style)
@@ -172,7 +200,6 @@ class ReportOrgVisitorListView(APIView):
             # Return the PDF file path
             return Response(pdf_file_path)
 
-
         else:
             serializer = self.serializer_class(visitors_details_history, many=True)
             return Response(serializer.data)
@@ -180,30 +207,56 @@ class ReportOrgVisitorListView(APIView):
     def generate_csv_file(self, data, org_name):
         timestamp = int(time.time())
         filename = f"{org_name}__{timestamp}.csv"
-        file_path = os.path.join('media/files/csv/', filename)
+        file_path = os.path.join("media/files/csv/", filename)
 
-        with open(file_path, 'w', newline='') as csv_file:
+        with open(file_path, "w", newline="") as csv_file:
             csv_writer = csv.writer(csv_file)
-            parameters = ["Organization", "Visitor", "Full Name", "Mobile Number", "Purpose",
-                          "Have Vehicle", "Vehicle Number", "Is With Team", "Number of Team",
-                          "Visiting From", "Is Approved", "Departed At", "Visited At"]
+            parameters = [
+                "Organization",
+                "Visitor",
+                "Full Name",
+                "Mobile Number",
+                "Purpose",
+                "Have Vehicle",
+                "Vehicle Number",
+                "Is With Team",
+                "Number of Team",
+                "Visiting From",
+                "Is Approved",
+                "Departed At",
+                "Visited At",
+            ]
             csv_writer.writerow(parameters)
             for item in data:
-                csv_writer.writerow([
-                    item.organization.organization_name if item.organization else None,
-                    item.visitor.full_name if item.visitor else None,
-                    item.full_name,
-                    item.mobile_number,
-                    item.purpose,
-                    item.have_vehicle,
-                    item.vehicle_number,
-                    item.is_with_team,
-                    item.number_of_team,
-                    item.visiting_from,
-                    item.is_approved,
-                    item.departed_at.strftime('%Y-%m-%d %H:%M:%S') if item.departed_at else None,
-                    item.visited_at.strftime('%Y-%m-%d %H:%M:%S') if item.visited_at else None
-                ])
+                csv_writer.writerow(
+                    [
+                        (
+                            item.organization.organization_name
+                            if item.organization
+                            else None
+                        ),
+                        item.visitor.full_name if item.visitor else None,
+                        item.full_name,
+                        item.mobile_number,
+                        item.purpose,
+                        item.have_vehicle,
+                        item.vehicle_number,
+                        item.is_with_team,
+                        item.number_of_team,
+                        item.visiting_from,
+                        item.is_approved,
+                        (
+                            item.departed_at.strftime("%Y-%m-%d %H:%M:%S")
+                            if item.departed_at
+                            else None
+                        ),
+                        (
+                            item.visited_at.strftime("%Y-%m-%d %H:%M:%S")
+                            if item.visited_at
+                            else None
+                        ),
+                    ]
+                )
         return file_path
 
     # def generate_pdf_file(self, data, org_name):
@@ -299,7 +352,7 @@ class VisitorHistoryListView(APIView):
     def get(self, request, pk, format=None):
         histories = OrganizationVisitHistory.objects.filter(visitor=request.user).all()
         # Apply search
-        search_query = request.query_params.get('search', '')
+        search_query = request.query_params.get("search", "")
         histories = self.filter_queryset(histories, search_query)
         # Apply pagination
         paginator = self.pagination_class()
@@ -311,8 +364,10 @@ class VisitorHistoryListView(APIView):
     def filter_queryset(self, queryset, search_query):
         if search_query:
             stripped_search_query = search_query.strip()
-            queryset = queryset.filter(Q(organization__full_name__icontains=stripped_search_query) | Q(
-                visiting_from__icontains=stripped_search_query))
+            queryset = queryset.filter(
+                Q(organization__full_name__icontains=stripped_search_query)
+                | Q(visiting_from__icontains=stripped_search_query)
+            )
         return queryset
 
 
@@ -323,13 +378,17 @@ class ReportVisitorHistoryListView(APIView):
 
     def get(self, request, pk, format=None):
         # Common logic to retrieve all data
-        visitors_details_history = OrganizationVisitHistory.objects.filter(visitor=request.user.id).all()
+        visitors_details_history = OrganizationVisitHistory.objects.filter(
+            visitor=request.user.id
+        ).all()
         # Check if the endpoint is requesting a CSV file
-        export_csv = request.query_params.get('export_csv', False)
+        export_csv = request.query_params.get("export_csv", False)
         if export_csv:
             # Generate CSV file, save it on the server, and send the link in the response
-            file_path = self.generate_csv_file(visitors_details_history, request.user.organization_name)
-            return Response({'csv_file_link': file_path})
+            file_path = self.generate_csv_file(
+                visitors_details_history, request.user.organization_name
+            )
+            return Response({"csv_file_link": file_path})
         else:
             # Return the regular JSON response
             serializer = self.serializer_class(visitors_details_history, many=True)
@@ -341,30 +400,58 @@ class ReportVisitorHistoryListView(APIView):
         filename = f"{org_name}__{timestamp}.csv"
 
         # Define the file path on the server
-        file_path = os.path.join('media/files/csv/', filename)  # Update the path accordingly
+        file_path = os.path.join(
+            "media/files/csv/", filename
+        )  # Update the path accordingly
         # Write data to the CSV file
-        with open(file_path, 'w', newline='') as csv_file:
+        with open(file_path, "w", newline="") as csv_file:
             csv_writer = csv.writer(csv_file)
-            parameters = ["Organization", "Visitor", "Full Name", "Mobile Number", "Purpose",
-                          "Have Vehicle", "Vehicle Number", "Is With Team", "Number of Team",
-                          "Visiting From", "Is Approved", "Departed At", "Visited At"]
+            parameters = [
+                "Organization",
+                "Visitor",
+                "Full Name",
+                "Mobile Number",
+                "Purpose",
+                "Have Vehicle",
+                "Vehicle Number",
+                "Is With Team",
+                "Number of Team",
+                "Visiting From",
+                "Is Approved",
+                "Departed At",
+                "Visited At",
+            ]
             csv_writer.writerow(parameters)
             for item in data:
-                csv_writer.writerow([
-                    item.organization.organization_name if item.organization else None,
-                    item.visitor.full_name if item.visitor else None,
-                    item.full_name,
-                    item.mobile_number,
-                    item.purpose,
-                    item.have_vehicle,
-                    item.vehicle_number,
-                    item.is_with_team,
-                    item.number_of_team,
-                    item.visiting_from,
-                    item.is_approved,
-                    item.departed_at.strftime('%Y-%m-%d %H:%M:%S') if item.departed_at else None,
-                    item.visited_at.strftime('%Y-%m-%d %H:%M:%S') if item.visited_at else None
-                ])
+                csv_writer.writerow(
+                    [
+                        (
+                            item.organization.organization_name
+                            if item.organization
+                            else None
+                        ),
+                        item.visitor.full_name if item.visitor else None,
+                        item.full_name,
+                        item.mobile_number,
+                        item.purpose,
+                        item.have_vehicle,
+                        item.vehicle_number,
+                        item.is_with_team,
+                        item.number_of_team,
+                        item.visiting_from,
+                        item.is_approved,
+                        (
+                            item.departed_at.strftime("%Y-%m-%d %H:%M:%S")
+                            if item.departed_at
+                            else None
+                        ),
+                        (
+                            item.visited_at.strftime("%Y-%m-%d %H:%M:%S")
+                            if item.visited_at
+                            else None
+                        ),
+                    ]
+                )
         return file_path
 
 
@@ -429,3 +516,195 @@ class ListVisitorsMessageAPI(generics.ListAPIView):
     queryset = VisitorsMessage.objects.all()
     serializer_class = ListVisitorsMessageSerializer
     permission_classes = [IsVisitingUser]
+
+
+class DownloadVisitorCSVView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        search_query = request.query_params.get("search", "")
+        is_approved = request.query_params.get("is_approved", None)
+
+        date_from_param = request.query_params.get("date_min")
+        date_to_param = request.query_params.get("date_max")
+        date_from = parse_date(date_from_param) if date_from_param else None
+        date_to = parse_date(date_to_param) if date_to_param else None
+
+        visitors_details_history = OrganizationVisitHistory.objects.filter(
+            organization=request.user.id
+        )
+        if date_from and date_to:
+            date_to = date_to + timedelta(days=1) - timedelta(microseconds=1)
+            visitors_details_history = visitors_details_history.filter(
+                created_at__range=[date_from, date_to]
+            )
+
+        visitors_details_history = visitors_details_history.filter(
+            Q(organization=request.user.id)
+            & (
+                Q(visitor__full_name__icontains=search_query)
+                | Q(purpose__icontains=search_query)
+                | Q(full_name__icontains=search_query)
+                | Q(mobile_number__icontains=search_query)
+                | Q(vehicle_number__icontains=search_query)
+                | Q(visiting_from__icontains=search_query)
+            )
+        )
+
+        if is_approved is not None:
+            visitors_details_history = visitors_details_history.filter(
+                is_approved=is_approved
+            )
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="visitor_data.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(
+            [
+                "Full Name",
+                "Email",
+                "Mobile Number",
+                "Purpose",
+                "Have Vehicle",
+                "Vehicle Number",
+                "Is With Team",
+                "Number of Team",
+                "Visiting From",
+                "Is Approved",
+                "Visited At",
+                "Visit Type",
+            ]
+        )
+
+        for visitor in visitors_details_history:
+            writer.writerow(
+                [
+                    visitor.full_name,
+                    visitor.email,
+                    visitor.mobile_number,
+                    visitor.purpose,
+                    visitor.have_vehicle,
+                    visitor.vehicle_number,
+                    visitor.is_with_team,
+                    visitor.number_of_team,
+                    visitor.visiting_from,
+                    visitor.is_approved,
+                    visitor.visited_at,
+                    visitor.visit_type,
+                ]
+            )
+
+        return response
+
+
+class DownloadVisitorPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        search_query = request.query_params.get("search", "")
+        is_approved = request.query_params.get("is_approved", None)
+
+        date_from_param = request.query_params.get("date_min")
+        date_to_param = request.query_params.get("date_max")
+        date_from = parse_date(date_from_param) if date_from_param else None
+        date_to = parse_date(date_to_param) if date_to_param else None
+
+        visitors_details_history = OrganizationVisitHistory.objects.filter(
+            organization=request.user.id
+        )
+        if date_from and date_to:
+            date_to = date_to + timedelta(days=1) - timedelta(microseconds=1)
+            visitors_details_history = visitors_details_history.filter(
+                created_at__range=[date_from, date_to]
+            )
+
+        visitors_details_history = visitors_details_history.filter(
+            Q(organization=request.user.id)
+            & (
+                Q(visitor__full_name__icontains=search_query)
+                | Q(purpose__icontains=search_query)
+                | Q(full_name__icontains=search_query)
+                | Q(mobile_number__icontains=search_query)
+                | Q(vehicle_number__icontains=search_query)
+                | Q(visiting_from__icontains=search_query)
+            )
+        )
+
+        if is_approved is not None:
+            visitors_details_history = visitors_details_history.filter(
+                is_approved=is_approved
+            )
+
+        visitors_data = visitors_details_history.all()
+
+        # Generate HTML content
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Visitor Data</title>
+            <style>
+                body {{
+                    font-family: Helvetica, Arial, sans-serif;
+                }}
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                }}
+                th, td {{
+                    padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }}
+                th {{
+                    background-color: #f2f2f2;
+                }}
+            </style>
+        </head>
+        <body>
+            <h2>Visitor Data</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Purpose</th>
+                        <th>Vehicle Number</th>
+                        <th>Approved</th>
+                        <th>Visit Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+
+        for visitor in visitors_data:
+            html_content += f"""
+            <tr>
+                <td>{visitor.full_name}</td>
+                <td>{visitor.email}</td>
+                <td>{visitor.mobile_number}</td>
+                <td>{visitor.purpose}</td>
+                <td>{visitor.vehicle_number}</td>
+                <td>{visitor.is_approved}</td>
+                <td>{visitor.visit_type}</td>
+            </tr>
+            """
+
+        html_content += """
+                </tbody>
+            </table>
+        </body>
+        </html>
+        """
+
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="visitor_data.pdf"'
+
+        pisa_status = pisa.CreatePDF(html_content, dest=response)
+
+        if pisa_status.err:
+            return HttpResponse(f"We had some errors <pre>{html_content}</pre>")
+
+        return response
