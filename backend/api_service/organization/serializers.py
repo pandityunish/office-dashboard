@@ -149,6 +149,7 @@ class OrganizationVisitHistorySerializer(serializers.ModelSerializer):
             "is_approved",
             "departed_at",
             "visited_at",  # date
+            "visit_type",
             "type_of_id",
             "id_number",
             "email",
@@ -631,8 +632,8 @@ class ListOrganizationKYCDocumentSerializer(serializers.ModelSerializer):
 
 
 class CreateOrganizationKycSerializer(serializers.ModelSerializer):
-    social_media_links = OrganizationSocialMediaLinkSerializer(many=True)
-    documents = CreateOrganizationKYCDocumentSerializer(many=True)
+    social_media_links = OrganizationSocialMediaLinkSerializer(many=True, required=False)
+    documents = CreateOrganizationKYCDocumentSerializer(many=True, required=False)
 
     # Custom validation method for validating base64 strings
     def validate_base64_field(self, value):
