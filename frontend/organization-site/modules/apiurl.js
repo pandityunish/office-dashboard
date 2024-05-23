@@ -12,3 +12,4 @@ export const getsubscriptionurl = "/user/subscription-of-org/";
 export const getpropuseurl = "/organization/purpose/";
 export const getadsbannerurl = "/organization/ads-banners/list";
 export const getCustomersListUrl = "/organization/customer-info";
+export const getMeetingListUrl = "/organization/meeting-info";

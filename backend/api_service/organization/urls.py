@@ -13,6 +13,16 @@ urlpatterns = [
     path(
         "meetingcreate/", views.MeetingAppoinmentCreate.as_view(), name="meeting-create"
     ),
+    path(
+        "meeting-info/",
+        views.MeetingListView.as_view(),
+        name="meeting_info_list",
+    ),
+    path(
+        "meeting-info/<int:meeting_id>/",
+        views.MeetingDeleteView.as_view(),
+        name="meeting-delete",
+    ),
     path("customercreate/", views.Customerinfo.as_view(), name="customerinfo"),
     path(
         "customer-info/",

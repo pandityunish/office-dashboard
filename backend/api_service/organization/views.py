@@ -1698,11 +1698,63 @@ class Guestinfo(APIView):
 
 
 class MeetingAppoinmentCreate(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = MeetingSerializer(data=request.data)
-        print(request.data)
-    
+        if serializer.is_valid():
+            serializer.save(organization=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeetingListView(APIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+    serializer_class = MeetingSerializer
+
+    def get(self, request):
+        search_query = request.query_params.get("search", "")
+        organization_id = request.user.id
+
+        guests = Meetingappoiment.objects.filter(organization_id=organization_id)
+
+        if search_query:
+            guests = guests.filter(
+                Q(full_name__icontains=search_query)
+                | Q(mobile_number__icontains=search_query)
+                | Q(email__icontains=search_query)
+            )
+
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(guests, request)
+        serializer = self.serializer_class(result_page, many=True)
+
+        response_data = {
+            "organization": organization_id,
+            "meeting_info": serializer.data,
+        }
+
+        return paginator.get_paginated_response(response_data)
+
+
+class MeetingDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            guest = Meetingappoiment.objects.get(pk=pk, organization=request.user)
+            guest.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Meetingappoiment.DoesNotExist:
+            return Response(
+                {"error": "Meeting not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class Customerinfo(APIView):
     permission_classes = [IsAuthenticated]

@@ -425,6 +425,13 @@ class Meetingappoiment(models.Model):
     location = models.CharField(max_length=30)
     meeting_type = models.CharField(max_length=50)
     date = models.DateField()
+    organization = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="meeting_registrations",
+        default=None,
+        null=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
