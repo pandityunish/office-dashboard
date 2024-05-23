@@ -222,9 +222,7 @@ class BranchUserManager(BaseUserManager):
 
 class OrganizationBranch(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, default="example@example.com")
-    password = models.CharField(
-        max_length=128, default=make_password("default_password")
-    )
+    password = models.CharField(max_length=128, default=None)
     organization = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="org_roles", null=True
     )
