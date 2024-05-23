@@ -37,7 +37,7 @@ const purpose2 = [
   { id: 2, title: "Branch Visitor ", value: "Branch Visitor" },
 ];
 const notificationTypes = [
-  { id: 1, title: "All ", value: "All" },
+  { id: 1, title: "All ", value: "all" },
   { id: 2, title: "wishes ", value: "wishes" },
   { id: 2, title: "promotional ", value: "promotional" },
   { id: 2, title: "other ", value: "other" },

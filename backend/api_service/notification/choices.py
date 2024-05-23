@@ -8,6 +8,7 @@ VISITOR_CHOICES = (
 
 
 NOTIFICATION_TYPE_CHOICES = (
+        ('all', 'All'),
         ('promotional', 'Promotional'),
         ('wishes', 'Wishes'),
         ('other', 'Other'),
