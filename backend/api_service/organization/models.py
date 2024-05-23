@@ -411,6 +411,13 @@ class Guest(models.Model):
     remainingPayment = models.IntegerField(blank=True, null=True)
     checkout_date = models.DateField(blank=True, null=True)
     paymentmethod = models.CharField(max_length=100)
+    organization = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="guest_registrations",
+        default=None,
+        null=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

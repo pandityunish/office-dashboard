@@ -894,6 +894,7 @@ class VisitorCountsSerializer(serializers.Serializer):
 class GuestSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Guest
+        fields = "__all__"
 
 
 class MeetingSerializer(serializers.ModelSerializer):
