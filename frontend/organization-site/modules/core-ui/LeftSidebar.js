@@ -1,50 +1,35 @@
 "use client";
-import { useAtom } from "jotai";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { showLeftSidebarAtom } from "@/jotai/ui-atoms";
-import { useUserData } from "@/modules/hooks/useUserData";
-import { GrOverview } from "react-icons/gr";
-import { GiTreeBranch } from "react-icons/gi";
-import { TbCircleFilled } from "react-icons/tb";
-import { FcSettings } from "react-icons/fc";
-import { IoIosArrowDown } from "react-icons/io";
-import { IoIosArrowUp } from "react-icons/io";
-import { BsViewStacked } from "react-icons/bs";
 
-import { MdOutlineClose } from "react-icons/md";
-import { BsClockHistory } from "react-icons/bs";
-import { BiDockTop } from "react-icons/bi";
-import { useQuery } from "@tanstack/react-query";
-import { MdOutlineDashboard } from "react-icons/md";
-import { MdOutlineMailOutline } from "react-icons/md";
-import { IoPersonOutline } from "react-icons/io5";
-import { LuMessageSquare } from "react-icons/lu";
-import { HiOutlineDocumentReport } from "react-icons/hi";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { PiSquareSplitHorizontalLight } from "react-icons/pi";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
-import { IoEllipsisHorizontal } from "react-icons/io5";
-import { MdPersonOutline } from "react-icons/md";
-import { TbTopologyStar } from "react-icons/tb";
-import { FaRegClipboard } from "react-icons/fa";
-import { FaPersonWalkingArrowRight } from "react-icons/fa6";
-import { MdLogout } from "react-icons/md";
 import "./scroll.css";
-import {
-  FaArrowsDownToPeople,
-  FaClipboardList,
-  FaMessage,
-} from "react-icons/fa6";
 
-import Image from "next/image";
+import { useState } from "react";
+
+import {
+  MdDirectionsRun,
+  MdAutoAwesome,
+  MdAccessTime,
+  MdOutlineKeyboardArrowRight,
+  MdPersonOutline,
+  MdLogout,
+  MdOutlineDashboard,
+} from "react-icons/md";
+import { FaPersonWalkingArrowRight } from "react-icons/fa6";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { HiOutlineDocumentReport } from "react-icons/hi";
+import { IoEllipsisHorizontal } from "react-icons/io5";
+import { FaRegClipboard } from "react-icons/fa";
+import { TbTopologyStar } from "react-icons/tb";
+
 import axiosInstance from "../axios";
-import CircularDays from "../dash-component/CircularDays";
 import PreminumPlan from "../organization/PreminumPlan";
 import ErrorDialog from "./ErrorDialog";
 import { baseurl } from "../apiurl";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAtom } from "jotai";
+import { showLeftSidebarAtom } from "@/jotai/ui-atoms";
 
 const mainMenu = [
   { id: 1, menu: "Scan Now", path: "/scan" },
@@ -65,42 +50,19 @@ const menuList = [
     path: "/visitor-report",
     icon: HiOutlineDocumentReport,
   },
+  {
+    id: 6,
+    menu: "Customers",
+    path: "/customer-list",
+    icon: MdDirectionsRun,
+  },
 ];
 
 const LeftSidebar = () => {
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    isError: isUserError,
-  } = useUserData();
-  const [ishistoryexpanded, setishistoryexpanded] = useState(false);
-  const [kycData, setKycData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isadminopen, setisadminopen] = useState(false);
   const [isbranchopen, setisbranchopen] = useState(false);
   const [ismannualopen, setismannualopen] = useState(false);
   const [isnotificationopen, setisnotificationopen] = useState(false);
-
-  useEffect(() => {
-    // const fetchKYCData = async () => {
-    //   try {
-    //     const response = await axiosInstance.get('/organization/kyc/me', {
-    //       headers: {
-    //         Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage?.getItem('access') : ''}`
-    //       }
-    //     });
-    //     setKycData(response.data);
-    //   } catch (error) {
-    //     console.error('Error fetching KYC data:', error);
-    //     setError(error);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // fetchKYCData(); // Initial data fetch
-    // You can add dependencies to the dependency array if you want to re-fetch data based on certain changes
-  }, []);
 
   const onLogout = async () => {
     try {
@@ -146,7 +108,12 @@ const LeftSidebar = () => {
           transition={{ duration: 0.2 }}
           style={{}}
         >
-          <ErrorDialog handleClose={handleClose} onclick={onLogout} open={open} text={"logout?"} />
+          <ErrorDialog
+            handleClose={handleClose}
+            onclick={onLogout}
+            open={open}
+            text={"logout?"}
+          />
           <div className="flex justify-between mt-3 mb-6 px-0.5   ">
             <section className="flex items-center justify-center px-7">
               <Link href="/dash">
