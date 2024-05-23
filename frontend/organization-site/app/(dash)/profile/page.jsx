@@ -102,9 +102,7 @@ export default function Profile() {
 </div>
 <div className="flex flex-col justify-between mt-4">
 <div className="flex  gap-1 cursor-pointer items-center rounded-xl text-white justify-center w-[159px] h-[48px] bg-primaryblue" onClick={()=>{
-  if(kycorg.results.length>=1){
     router.push("/edit-profile")
-  }
  
 }}>
   <MdEdit className="text-lg"/>
