@@ -214,8 +214,14 @@ class ChangePasswordView(generics.UpdateAPIView):
         old_password = request.data.get("old_password")
         new_password = request.data.get("new_password")
 
+        if not old_password or not new_password:
+            raise ValidationError("Old password and new password are required")
+
         if not user.check_password(old_password):
             raise ValidationError("Invalid old password")
+
+        if old_password == new_password:
+            raise ValidationError("New password cannot be the same as the old password")
 
         user.set_password(new_password)
         user.save()
