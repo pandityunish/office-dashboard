@@ -1,18 +1,23 @@
 "use client";
-import React, { useEffect } from "react";
+
+import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import axiosInstance from "@/modules/axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import scan from "../../assets/qr scan with circle.png";
-import dots from "../../assets/dot shape.png";
 import Image from "next/image";
+
 import { MdPersonOutline } from "react-icons/md";
+
+import dynamic from "next/dynamic";
 import { useAtom } from "jotai";
 import { phonenumberdataAtom } from "@/jotai/dash-atoms";
-import AuthSlider from "@/modules/auth-component/AuthSlider";
-import { baseurl } from "@/modules/apiurl";
+import axiosInstance from "@/modules/axios";
+
+const AuthSlider = dynamic(
+  () => import("@/modules/auth-component/AuthSlider"),
+  { ssr: false }
+);
 
 function ForgotPassword() {
   const router = useRouter();
@@ -21,34 +26,33 @@ function ForgotPassword() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const [value, setvalue] = useAtom(phonenumberdataAtom);
-  useEffect(() => {
-    const initialValue = document.body.style.zoom;
+  const [, setvalue] = useAtom(phonenumberdataAtom);
 
-    document.body.style.zoom = "85%";
-    return () => {
-      document.body.style.zoom = initialValue;
-    };
-  }, []);
-  const onSubmit = async (data) => {
-    try {
-      const response = await axiosInstance.post("/user/forgot-password/", data);
-      if (response.status === 200) {
-        toast.success("OTP sent for password reset. Check your mobile.");
-        router.push(`/reset`);
-        setvalue({ number: data.mobile_number });
+  const onSubmit = useCallback(
+    async (data) => {
+      try {
+        const response = await axiosInstance.post(
+          "/user/forgot-password/",
+          data
+        );
+        if (response.status === 200) {
+          toast.success("OTP sent for password reset. Check your mobile.");
+          router.push(`/reset`);
+          setvalue({ number: data.mobile_number });
+        }
+      } catch (error) {
+        toast.error(
+          "OTP sending failed. please check your number and try again."
+        );
       }
-    } catch (error) {
-      toast.error(
-        "OTP sending failed. please check your number and try again."
-      );
-    }
-  };
+    },
+    [router, setvalue]
+  );
 
   return (
     <div className="grid px-5 py-2 mx-auto font-inter xl:px-32 md:grid-cols-2 max-w-9xl">
       <div
-        className="flex items-center justify-start px-4 py-10 bg-white md:px-0 "
+        className="flex items-center justify-center px-4 py-10 bg-white md:px-0"
         style={{ justifyContent: "center" }}
       >
         <div
@@ -56,16 +60,16 @@ function ForgotPassword() {
           style={{ width: "80%" }}
         >
           <Image
-            src={`${baseurl}/media/logo/epass.png`}
-            alt=""
+            src={require("../../assets/epass.png")}
+            alt="ePass Logo"
             className="h-11"
-            width={150}
+            width={100}
             height={44}
+            loading="lazy"
           />
           <h2 className="text-2xl font-bold leading-tight text-black sm:text-4xl mt-10">
             Forgot Password
           </h2>
-          {/* You can add a link to the login page here */}
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
             <div className="space-y-5">
               <div>
@@ -79,7 +83,7 @@ function ForgotPassword() {
                   <MdPersonOutline
                     className={`absolute text-2xl left-4 ${
                       errors.mobile_number ? "top-1/3" : "top-1/2"
-                    }  transform -translate-y-1/2 text-gray-400`}
+                    } transform -translate-y-1/2 text-gray-400`}
                   />
                   <input
                     type="tel"
@@ -102,7 +106,7 @@ function ForgotPassword() {
               <div>
                 <button
                   type="submit"
-                  className="inline-flex items-center mt-10 bg-gradient-to-r from-[#25AAE1]  to-[#0F75BC] justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md bg-epassblue focus:outline-none hover:bg-blue-700 focus:bg-blue-700"
+                  className="inline-flex items-center mt-10 bg-gradient-to-r from-[#25AAE1] to-[#0F75BC] justify-center w-full px-4 py-4 text-base font-semibold text-white transition-all duration-200 border border-transparent rounded-md bg-epassblue focus:outline-none hover:bg-blue-700 focus:bg-blue-700"
                 >
                   Continue
                 </button>
@@ -120,63 +124,10 @@ function ForgotPassword() {
           </form>
         </div>
       </div>
-      <div className="h-full w-[50%] lg:flex text-white hidden overflow-hidden  flex-col items-center   justify-center pt-8 bg-primary fixed right-0 top-0 z-10 px-4 py-10 bg-gradient-to-r from-[#25AAE1]  to-[#0F75BC] border-l sm:py-16 lg:py-24">
-        <Image
-          width={300}
-          src={dots}
-          alt=""
-          className="absolute -top-20 rotate-180 -right-28"
-        />
-        <Image
-          height={250}
-          src={dots}
-          alt=""
-          className="absolute bottom-0   -left-44"
-        />
-        {/* <Image width={360} src={scan} alt='' className=''/> */}
-        <AuthSlider />
-        {/* <h1 className='text-3xl font-semibold mt-6'>Epass Account</h1>
-          <p className='text-sm font-light mt-2'>Manage your daily transactions easily</p>
-          <div className='flex gap-1 mt-4'>
-          <div className='h-2 w-5 rounded-2xl bg-[#25AAE1]'>
 
-          </div>
-          <div className='h-2 w-2 rounded-full bg-white'>
-
-          </div>
-        
-<div className='h-2 w-2 rounded-full bg-white'>
-
-</div>
-          </div> */}
-        {/* <div>
-            <Image
-              width={400}
-              height={400}
-              className='w-full mx-auto'
-              src='/qr-scanning.svg'
-              alt='qr-scanning'
-            />
-            <div className='w-full mx-auto mt-5 xl:max-w-lg'>
-              <h3 className='text-2xl font-bold text-center text-black'>
-                Get Your Own QR
-              </h3>
-              <p className='leading-relaxed text-center text-gray-500 mt-2.5 text-xs'>
-                Epass revolutionizes the entry management system with QR
-                technology. Say goodbye to paperwork and hello to a seamless
-                digital entry experience. Register your organization today and
-                join the paperless future of efficient entry management.
-              </p>
-              <div className='flex items-center justify-center mt-10 space-x-3'>
-                <div className='bg-orange-500 rounded-full w-20 h-1.5' />
-                <div className='bg-gray-200 rounded-full w-12 h-1.5' />
-                <div className='bg-gray-200 rounded-full w-12 h-1.5' />
-              </div>
-            </div>
-          </div> */}
-      </div>
+      <AuthSlider />
     </div>
   );
 }
 
-export default ForgotPassword;
+export default React.memo(ForgotPassword);
