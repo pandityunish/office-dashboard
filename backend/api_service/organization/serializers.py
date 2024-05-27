@@ -535,6 +535,7 @@ class OrganizationBranchSerializer(serializers.ModelSerializer):
         fields = [
             "name",
             "email",
+            "password",
             "branch_no",
             "contact_person",
             "mobile_no",
