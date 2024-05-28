@@ -59,7 +59,7 @@ class NotificationData(BaseModel):
     is_seen = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):
-        return self.title
+        return self.title if self.title else "No Title"
 
     class Meta:
         verbose_name = "Notification"

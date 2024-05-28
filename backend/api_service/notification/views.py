@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
@@ -5,14 +6,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import viewsets
 
 from . import usecases
 from .filterset import NotificationDataFilter
-from .models import Notification
-from .serializers import NotificationSerializer, OrganizationNotificationCountSerializer, RegisterUserDeviceSerializer
+from .models import Notification, NotificationData
+from .serializers import (
+    NotificationSerializer,
+    RegisterUserDeviceSerializer,
+    NotificationDataSerializer,
+)
 from user.models import CustomUser
-
-from common.permissions import IsOrganizationUser
 
 from common.permissions import IsVisitingUser
 from organization.models import Device
@@ -55,10 +59,6 @@ class UserNotificationList(APIView):
         return Response(serializer.data)
 
 
-from rest_framework.exceptions import PermissionDenied
-
-from django.db.models import Q
-
 class OrganizationNotificationList(generics.ListAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -75,34 +75,41 @@ class OrganizationNotificationList(generics.ListAPIView):
         organization_id = self.kwargs.get("organization_id")
         organization = self.get_organization(organization_id)
 
-        is_branch = self.request.user.is_branch
-        is_staff = self.request.user.is_staff
-        is_visitor = self.request.user.is_visitor
-        is_admin = self.request.user.is_admin
-        is_organization = self.request.user.is_organization
+        user = self.request.user
 
-        filters = Q()
+        is_branch = user.is_branch
+        is_staff = user.is_staff
+        is_visitor = user.is_visitor
+        is_admin = user.is_admin
+        is_organization = user.is_organization
+
+        audience_filters = Q()
+        admin_notifications_filter = Q()
+
         if is_branch:
-            filters |= Q(audience='branch', organization_id=self.request.user.creator_id)
+            audience_filters |= Q(
+                audience="branch", organization_id=self.request.user.creator_id
+            )
+            admin_notifications_filter = Q(
+                organization_id=None, user_id=None, audience="branch"
+            )
         if is_staff and not is_admin:
-            filters |= Q(audience='staff', organization_id=self.request.user.creator_id)
+            audience_filters |= Q(
+                audience="staff", organization_id=self.request.user.creator_id
+            )
+            admin_notifications_filter = Q(
+                organization_id=None, user_id=None, audience="staff"
+            )
         if is_visitor:
-            filters |= Q(audience='visitor')
+            audience_filters |= Q(audience="visitor")
         if is_organization:
-            filters |= Q(audience='organization')
+            audience_filters |= Q(audience="organization")
 
-        if not (is_branch or is_staff or is_visitor):
-            filters |= Q(audience='organization')
+        combined_filters = (
+            Q(audience="all") | audience_filters | admin_notifications_filter
+        )
 
-        return NotificationData.objects.filter(filters)
-
-
-
-
-
-from rest_framework import viewsets
-from .models import NotificationData
-from .serializers import NotificationDataSerializer
+        return NotificationData.objects.filter(combined_filters)
 
 
 class NotificationDataViewSet(viewsets.ModelViewSet):
@@ -111,7 +118,7 @@ class NotificationDataViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
-        data['user_id'] = request.user.id
+        data["user_id"] = request.user.id
         serializer = NotificationDataSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -122,20 +129,25 @@ class CreateNotificationView(generics.CreateAPIView):
     serializer_class = NotificationDataSerializer
 
     def get_object(self):
-        organization = CustomUser.objects.filter(pk=self.kwargs.get('organization_id')).first()
+        organization = CustomUser.objects.filter(
+            pk=self.kwargs.get("organization_id")
+        ).first()
         if not organization:
             raise ValidationError(
-                {
-                    'error': 'Organization Doesnot exists for given id.'
-                }
+                {"error": "Organization Doesnot exist for the given id."}
             )
         return organization
 
     def perform_create(self, serializer):
-        return usecases.CreateNotificationUseCase(
-            instance=self.get_object(),
-            serializer=serializer
-        ).execute()
+        data = self.request.data.copy()
+        data["user_id"] = self.request.user.id
+        serializer = NotificationDataSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        usecase = usecases.CreateNotificationUseCase(
+            instance=self.get_object(), serializer=serializer, data=data
+        )
 
 
 class NotificationDetailAPIView(generics.RetrieveAPIView):
@@ -184,16 +196,14 @@ class RegisterUserDeviceView(generics.CreateAPIView):
         user = User.objects.filter(pk=self.request.user.id).first()
         if user:
             device = Device.objects.filter(
-                registration_id=data.get('token'),
+                registration_id=data.get("token"),
             ).first()
             if device:
                 device.delete()
             else:
-                Device.objects.create(user=user, registration_id=data.get('token'))
+                Device.objects.create(user=user, registration_id=data.get("token"))
         else:
-            raise ValidationError({
-                'error': 'error user doesnot exist.'
-            })
+            raise ValidationError({"error": "error user doesnot exist."})
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -203,5 +213,5 @@ class RegisterUserDeviceView(generics.CreateAPIView):
         return Response(
             "device registered  successfully",
             status=status.HTTP_200_OK,
-            headers=headers
+            headers=headers,
         )
