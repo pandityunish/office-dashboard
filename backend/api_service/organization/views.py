@@ -98,6 +98,8 @@ from .models import (
 from .filters import OrganizationVisitHistoryFilter
 from .pagination import StandardResultsSetPagination
 
+from django.shortcuts import get_object_or_404
+from organization.utils import send_notification
 from user.utils import generate_otp, send_otp_to_user
 from user.views import generate_sms_text
 from user.serializers import CustomUserSerializer
@@ -936,25 +938,34 @@ class ApproveVisitorView(APIView):
             if is_approved is None:
                 return Response({"error": "is_approved is required"})
 
-            visit_history = OrganizationVisitHistory.objects.filter(pk=visit_id).first()
-            if not visit_history:
-                return Response({"error": "Visit record not found"})
+            visit_history = get_object_or_404(OrganizationVisitHistory, pk=visit_id)
 
             if is_approved == False:
                 visit_history.delete()
-                self.send_notification(
-                    visitor=visit_history.visitor,
-                    message=f"Your visit has been unapproved by {request.user.full_name}.",
+                notification_data = {
+                    "notification_type": "other",
+                    "audience": "visitor",
+                    "title": "Visit Unapproved",
+                    "message": f"Your visit has been unapproved by {request.user.full_name}.",
+                }
+                send_notification(
+                    user=visit_history.visitor,
+                    notification_data=notification_data,
                 )
-
                 return Response({"message": "Visitor unapproved"})
 
             if visit_history.organization.id == request.user.id:
                 visit_history.is_approved = is_approved
                 visit_history.save()
-                self.send_notification(
-                    visitor=visit_history.visitor,
-                    message=f"Your visit has been approved by {request.user.full_name}.",
+                notification_data = {
+                    "notification_type": "other",
+                    "audience": "visitor",
+                    "title": "Visit Approved",
+                    "message": f"Your visit has been approved by {request.user.full_name}.",
+                }
+                send_notification(
+                    user=visit_history.visitor,
+                    notification_data=notification_data,
                 )
                 return Response({"message": "Visitor approved successfully"})
             else:
@@ -964,35 +975,6 @@ class ApproveVisitorView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)})
-
-    def send_notification(self, visitor, message):
-        visitor_tokens = (
-            OrganizationFCMToken.objects.filter(
-                organization=visitor, organization__is_visitor=True
-            )
-            .exclude(fcm_token__isnull=True)
-            .exclude(fcm_token__exact="")
-        )
-
-        notification_data = {
-            "notification_type": "other",
-            "audience": "visitor",
-            "title": "Visit Status Update",
-            "message": f"{message}",
-        }
-
-        for token in visitor_tokens:
-            message = messaging.Message(
-                notification=messaging.Notification(
-                    title=notification_data["title"], body=notification_data["message"]
-                ),
-                token=token.fcm_token,
-            )
-
-            organization_instance = CustomUser.objects.get(pk=token.organization_id)
-            NotificationData.objects.create(
-                organization_id=organization_instance, **notification_data
-            )
 
 
 class OrganizationSettingsView(generics.CreateAPIView):
@@ -1652,7 +1634,6 @@ class DownloadVisitHistoryPdfView(generics.RetrieveAPIView):
         serializer = self.get_serializer(self.get_object())
 
         context = {"visitor_history": serializer.data}
-        print(context)
 
         template = get_template("visitor_history_details.html")
 

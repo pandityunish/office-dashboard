@@ -133,7 +133,7 @@ export default function Visitorlist() {
     <div className="lg:w-full w-[1367px]  mt-10 rounded-xl p-7 shadow-lg bg-white font-inter">
       <ErrorDialog
         handleClose={handleClose}
-        onClick={handleDeleteVisitor}
+        onclick={handleDeleteVisitor}
         open={open}
         text={"Delete Visitor?"}
       />
@@ -331,7 +331,7 @@ export default function Visitorlist() {
                         className="rounded-lg my-2 h-[32px] cursor-pointer w-[32px] flex flex-col justify-center items-center bg-[#FFE4E4]"
                         onClick={() => {
                           setVisitorId(row.id);
-                          setopen(true);
+                          setOpen(true);
                         }}
                       >
                         <MdOutlineDelete className="text-[#FF3A3A] text-2xl" />

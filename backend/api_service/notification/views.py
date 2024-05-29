@@ -88,22 +88,28 @@ class OrganizationNotificationList(generics.ListAPIView):
 
         if is_branch:
             audience_filters |= Q(
-                audience="branch", organization_id=self.request.user.creator_id
+                audience="branch", user_id=self.request.user.creator_id
             )
             admin_notifications_filter = Q(
                 organization_id=None, user_id=None, audience="branch"
             )
         if is_staff and not is_admin:
             audience_filters |= Q(
-                audience="staff", organization_id=self.request.user.creator_id
+                audience="staff", user_id=self.request.user.creator_id
             )
             admin_notifications_filter = Q(
                 organization_id=None, user_id=None, audience="staff"
             )
         if is_visitor:
             audience_filters |= Q(audience="visitor")
+            admin_notifications_filter = Q(
+                organization_id=None, user_id=None, audience="all"
+            )
         if is_organization:
             audience_filters |= Q(audience="organization")
+            admin_notifications_filter = Q(
+                organization_id=None, user_id=None, audience="all"
+            )
 
         combined_filters = (
             Q(audience="all") | audience_filters | admin_notifications_filter
@@ -148,6 +154,8 @@ class CreateNotificationView(generics.CreateAPIView):
         usecase = usecases.CreateNotificationUseCase(
             instance=self.get_object(), serializer=serializer, data=data
         )
+
+        return usecase.execute()
 
 
 class NotificationDetailAPIView(generics.RetrieveAPIView):

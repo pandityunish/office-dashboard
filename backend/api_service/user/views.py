@@ -37,6 +37,7 @@ from . import usecases, serializers
 from .models import CustomUser, Subscription
 from api_service.settings import production
 from .utils import generate_otp, send_otp_to_user, generate_sms_text, send_email
+from organization.utils import send_notification
 
 from organization.models import OrganizationKYC, OrganizationFCMToken
 
@@ -225,6 +226,13 @@ class ChangePasswordView(generics.UpdateAPIView):
 
         user.set_password(new_password)
         user.save()
+
+        notification_data = {
+            "title": "Password Changed",
+            "message": "Your password has been successfully changed.",
+        }
+        
+        send_notification(user, notification_data)
 
         return Response(
             {"message": "Password changed successfully"}, status=status.HTTP_200_OK
@@ -645,21 +653,28 @@ class ApproveVisitorsToggleView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        fcm_token = request.data.get('fcm_token')
+        fcm_token = request.data.get("fcm_token")
 
         if not fcm_token:
-            return Response({'error': 'FCM token is required.'}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"error": "FCM token is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         if fcm_token:
-            fcm_tokens = OrganizationFCMToken.objects.filter(fcm_token=fcm_token, organization=request.user)
+            fcm_tokens = OrganizationFCMToken.objects.filter(
+                fcm_token=fcm_token, organization=request.user
+            )
             if fcm_tokens.exists():
                 fcm_tokens.delete()
 
-        return Response({'message': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Logged out successfully."}, status=status.HTTP_200_OK
+        )
 
 
 class UpdateUserView(generics.UpdateAPIView):
@@ -674,7 +689,7 @@ class UpdateUserView(generics.UpdateAPIView):
         serializer.save()
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
