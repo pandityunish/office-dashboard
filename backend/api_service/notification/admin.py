@@ -18,9 +18,10 @@ class NotificationAdmin(CustomModelAdmin):
                 'title': obj.title,
                 'message': obj.message,
                 'notification_type': obj.notification_type,
-                'audience': obj.audience
+                'audience': obj.audience,
+                'user_id': obj.user_id.id if obj.user_id else None,
+                'attach_file': obj.attach_file
             }
-            
+
             usecase = CreateNotificationUseCase(instance=obj.organization_id, serializer=None, data=data)
             usecase._factory()
-        

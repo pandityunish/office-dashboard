@@ -4,6 +4,7 @@ VISITOR_CHOICES = (
         ('branch', 'Branch'),
         ('organization', 'Organization'),
         ('all', 'All'),
+        ('Individual User', 'Individual User'),
     )
 
 

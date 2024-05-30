@@ -5,7 +5,7 @@ from organization.models import OrganizationFCMToken
 from user.models import CustomUser
 from django.core.mail import send_mail
 from rest_framework.response import Response
-
+from django.core.mail import EmailMessage
 
 class CreateNotificationUseCase(BaseUseCase):
     def __init__(self, instance, serializer, data):
@@ -37,28 +37,71 @@ class CreateNotificationUseCase(BaseUseCase):
                     {"Error": f"Error sending notification to {fcm_token}: {str(e)}"}
                 )
 
+
     def _send_email_notifications(self, emails):
         for email in emails:
             try:
-                send_mail(
-                    self._data["title"],
-                    self._data["message"],
-                    "noreply.epassnepal@gmail.com",
-                    [email],
-                    fail_silently=False,
-                )
+                attach_file = self._data.get("attach_file")
+                if attach_file:
+                    image_filename = attach_file.name
+
+                    with open(attach_file.path, 'rb') as image_file:
+                        image_data = image_file.read()
+                    
+                    msg = EmailMessage(
+                        self._data["title"],
+                        self._data["message"],
+                        "noreply.epassnepal@gmail.com",
+                        [email],
+                    )
+                    msg.content_subtype = "html"
+                    msg.attach(image_filename, image_data, 'image/jpeg')
+                    
+                    msg.send()
+                else:
+                    html_message = f"""
+                        <html>
+                        <body>
+                            <h1>{self._data["title"]}</h1>
+                            <p>{self._data["message"]}</p>
+                        </body>
+                        </html>
+                    """
+
+                    send_mail(
+                        self._data["title"],
+                        self._data["message"],
+                        "noreply.epassnepal@gmail.com",
+                        [email],
+                        fail_silently=False,
+                        html_message=html_message
+                    )
+                
                 Response({"message": f"Email Sent Successfully to {email}"})
             except Exception as e:
                 Response({"Error": f"Error sending email to {email}: {str(e)}"})
 
+
     def _factory(self):
+        user_id = self._data.get('user_id')
+        user_instance = CustomUser.objects.get(id=user_id) if user_id else None
+
         notification = NotificationData.objects.create(
             organization_id=self.instance,
+            user_id=user_instance,
             notification_type=self._data.get("notification_type"),
             audience=self._data.get("audience"),
             title=self._data.get("title"),
             message=self._data.get("message"),
+            attach_file=self._data.get("attach_file")
         )
+
+        if user_instance:
+            devices = OrganizationFCMToken.objects.filter(organization=user_instance).exclude(fcm_token__isnull=True).exclude(fcm_token__exact="")
+            emails = [user_instance.email]
+            self._send_fcm_notifications(devices)
+            self._send_email_notifications(emails)
+            return notification
 
         audience = self._data.get("audience")
         is_admin_notification = self.instance is None or self.instance.is_admin

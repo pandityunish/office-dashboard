@@ -1,38 +1,51 @@
 import { getalldevicesurl, notificationurl } from "../apiurl";
 import axiosInstance from "../axios";
 
-export const postnotification = async ({
+export const createNotification = async ({
   toast,
+  userId,
   notification_type,
   target_audience,
   title,
   message,
-  Attach_File,
+  selectedUser,
+  selectedImage,
 }) => {
   try {
     const token = localStorage.getItem("access");
     const formData = new FormData();
-    formData.append("Attach_File", Attach_File, Attach_File.name);
+
     formData.append("audience", target_audience);
     formData.append("notification_type", notification_type);
     formData.append("title", title);
     formData.append("message", message);
 
-    const response = await axiosInstance.post(notificationurl, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.status == 201) {
-      toast.success("Notification Sent successfully");
-    } else {
-      // toast.error("Something went wrong")
+    if (selectedUser) {
+      formData.append("user_id", selectedUser.value);
     }
+
+    if (selectedImage) {
+      formData.append("attach_file", selectedImage);
+    }
+
+    const response = await axiosInstance.post(
+      `/notification/${userId}/notifications-create`,
+      formData,
+      {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response;
   } catch (error) {
     toast.error("Something went wrong");
+    throw error;
   }
 };
+
 
 export const getnotifications = async ({
   toast,

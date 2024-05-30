@@ -111,8 +111,10 @@ class OrganizationNotificationList(generics.ListAPIView):
                 organization_id=None, user_id=None, audience="all"
             )
 
+        individual_user_filter = Q(user_id=user.id)
+
         combined_filters = (
-            Q(audience="all") | audience_filters | admin_notifications_filter
+            Q(audience="all") | audience_filters | admin_notifications_filter | individual_user_filter
         )
 
         return NotificationData.objects.filter(combined_filters)
@@ -146,10 +148,9 @@ class CreateNotificationView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         data = self.request.data.copy()
-        data["user_id"] = self.request.user.id
+        data["organization_id"] = self.request.user.id
         serializer = NotificationDataSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
 
         usecase = usecases.CreateNotificationUseCase(
             instance=self.get_object(), serializer=serializer, data=data
