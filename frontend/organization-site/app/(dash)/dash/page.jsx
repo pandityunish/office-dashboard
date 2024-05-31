@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 
 import { LiaIdCardSolid } from "react-icons/lia";
 import { BsPersonCheck } from "react-icons/bs";
-import { MdPeopleOutline, MdOutlineCalendarToday, MdArrowRightAlt } from "react-icons/md";
+import {
+  MdPeopleOutline,
+  MdOutlineCalendarToday,
+  MdArrowRightAlt,
+} from "react-icons/md";
 
 import { useUserData } from "@/modules/hooks/useUserData";
 import LoadingComponent from "@/modules/core-ui/LoadingComponent";
