@@ -15,13 +15,16 @@ const poppins = Poppins({
 })
 
 export const metadata = {
-  title: 'ePass | Office dashboard | Visitor check-in system',
+  title: 'ePass | Visitor Check-In System | Nepal',
   description: 'Epass Office Application'
 }
 
 export default function RootLayout ({ children }) {
   return (
     <html lang='en' suppressHydrationWarning={true}>
+    <head>
+      <link rel="icon" href="/icon.jpg" />
+    </head>
       <body className={poppins.className}>
         <Providers>
           <div className='flex justify-between w-full'>

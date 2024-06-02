@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  swcMinify: true,
   images: {
     domains: ['admin.epass.com.np','api.epass.com.np'],
     remotePatterns: [
@@ -24,6 +25,7 @@ const nextConfig = {
     FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
     FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
     FIREBASE_VAPID_KEY: process.env.FIREBASE_VAPID_KEY 
+
   },
 }
 
